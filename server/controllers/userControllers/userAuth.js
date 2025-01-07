@@ -37,9 +37,12 @@ const registerUser = async (req, res) => {
                 phone VARCHAR(20) NOT NULL,
                 email VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
+                profile_photo VARCHAR(255),
                 role_id INT,
                 otp VARCHAR(6) NOT NULL,
-                otpExpires DATETIME NOT NULL
+                otpExpires DATETIME NOT NULL,
+                reset_token VARCHAR(255),
+                reset_token_expires DATETIME
             );
         `;
 
@@ -85,13 +88,16 @@ const registerUser = async (req, res) => {
             .slice(0, 19)
             .replace('T', ' ');
 
+        // Get profile photo path
+        const profilePhotoPath = req.file ? req.file.path : null;
+
         const insertUserQuery = `
-            INSERT INTO users (full_name, user_name, phone, email, password, role_id, otp, otpExpires) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO users (full_name, user_name, phone, email, password, profile_photo, role_id, otp, otpExpires, reset_token, reset_token_expires) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
 
         const savedUserId = await new Promise((resolve, reject) => {
-            db.query(insertUserQuery, [fullname, username, phone, email, hashedPassword, 1, otp, otpExpires], (err, results) => {
+            db.query(insertUserQuery, [fullname, username, phone, email, hashedPassword, profilePhotoPath, 1, otp, otpExpires, null, null], (err, results) => {
                 if (err) {
                     reject(err);
                 } else {
