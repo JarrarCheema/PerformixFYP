@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken';
 import db from '../../config/db.js'; 
 
-const verifyOTP = async (req, res) => {
+export const verifyOTP = async (req, res) => {
     try {
         const { otp } = req.body;
         console.log("OTP: ", otp);
@@ -81,5 +81,3 @@ const verifyOTP = async (req, res) => {
         });
     }
 };
-
-export default verifyOTP;
