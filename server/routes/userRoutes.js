@@ -6,6 +6,7 @@ import { verifyOTP } from "../controllers/userControllers/verifyOTP.js";
 import { verifyToken } from "../middlewares/authorization.js";
 import { requestResetPassword } from "../controllers/userControllers/requestResetPassword.js";
 import { resetPassword } from "../controllers/userControllers/resetPassword.js";
+import { getUser } from "../controllers/userControllers/getUser.js";
 
 router.get('/', getExampleData);
 
@@ -18,5 +19,7 @@ router.post('/login-user', loginUser);
 router.post('/request-reset-password', requestResetPassword);
 
 router.post('/reset-password/:token', resetPassword);
+
+router.get('/get-user', getUser);
 
 export default router;
