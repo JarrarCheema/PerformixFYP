@@ -15,7 +15,7 @@ export const createOrganization = async (req, res) => {
 
         // Check if 'organizations' table exists, create it if it doesn't
         const createTableQuery = `
-            CREATE TABLE organizations (
+            CREATE TABLE IF NOT EXISTS organizations (
                 organization_id INT PRIMARY KEY AUTO_INCREMENT,
                 organization_name VARCHAR(255),
                 type VARCHAR(255),
@@ -35,7 +35,7 @@ export const createOrganization = async (req, res) => {
                     console.error("Error creating table:", err);
                     reject(err);
                 } else {
-                    console.log("Checked/Created 'users' table.");
+                    console.log("Checked/Created 'organizations' table.");
                     resolve(results);
                 }
             });
