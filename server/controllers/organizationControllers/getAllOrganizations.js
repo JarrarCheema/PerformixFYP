@@ -22,8 +22,8 @@ export const getAllOrganizations = async (req, res) => {
         return res.status(200).send({
             success: true,
             message: "Organization fetched successfuly",
-            organization: organizations,
-            total_organizations: organizations.length
+            total_organizations: organizations.length,
+            organizations: organizations
         });
 
     } catch (error) {
