@@ -5,7 +5,7 @@ export const createDepartment = async (req , res) => {
 
     try {
         
-        const { department_id, department_name, number_of_employees, LM_of_department, performance_status } = req.body;
+        const { department_id, department_name, LM_of_department, performance_status, organization_id } = req.body;
         
         // Check if the Authorization header exists
         let token = req.header("Authorization");
@@ -13,7 +13,7 @@ export const createDepartment = async (req , res) => {
             return res.status(401).send({ message: "Authorization token is required" });
         }
 
-        if(!department_id || !department_name || !number_of_employees || !LM_of_department || !performance_status){
+        if(!department_id || !department_name || !LM_of_department || !performance_status || !organization_id){
             return res.status(400).send({
                 success: false,
                 message: "All fields are required"
@@ -30,15 +30,17 @@ export const createDepartment = async (req , res) => {
 
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS departments (
-                dept_id INT PRIMARY KEY AUTO_INCREMENT,
+                dept_id INT AUTO_INCREMENT PRIMARY KEY,
                 department_id VARCHAR(20),
                 department_name VARCHAR(255),
-                number_of_employees INT,
-                LM_of_department VARCHAR(255),
+                LM_of_department INT,
                 performance_status VARCHAR(255),
                 created_by INT,
-                created_on DATETIME,
-                CONSTRAINT fk_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+                created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+                is_active TINYINT DEFAULT 1,
+                organization_id INT,
+                CONSTRAINT fk_organization_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE SET NULL,
+                CONSTRAINT fk_lm_id FOREIGN KEY (LM_of_department) REFERENCES users(user_id) ON DELETE SET NULL
             );
         `;
 
@@ -55,6 +57,56 @@ export const createDepartment = async (req , res) => {
                 }
             });
         });
+
+
+        // CHECK ORGANIZATION EXIST WITH THE GIVEN ID
+        const checkOrganizationQuery = `
+            SELECT * FROM organizations WHERE organization_id = ?;
+        `;
+
+        const organization = await new Promise((resolve , reject) => {
+            db.query(checkOrganizationQuery, [organization_id], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results[0]);
+                }
+            });
+        });
+
+        if(!organization){
+            return res.status(401).send({
+                success: false,
+                message: "Organization ID is not correct. No Organization Exist with this ID"
+            });
+        }
+
+
+        // CHECK USER EXIST WITH THE GIVEN LM ID
+        const checkUserQuery = `
+            SELECT * FROM users WHERE user_id = ?;
+        `;
+
+        const user = await new Promise((resolve , reject) => {
+            db.query(checkUserQuery, [LM_of_department], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results[0]);
+                }
+            });
+        });
+
+        if(!user){
+            return res.status(401).send({
+                success: false,
+                message: "User ID is not correct. No user Exist with this ID"
+            });
+        }
+
+
 
         const checkDepartmentExist = `
             SELECT * FROM departments WHERE department_id = ? OR department_name = ?;
@@ -86,29 +138,58 @@ export const createDepartment = async (req , res) => {
         const pakistanTime = currentTimestamp.toISOString().slice(0, 19).replace('T', ' ');
 
         const insertDepartmentQuery = `
-            INSERT INTO departments (department_id, department_name, number_of_employees, LM_of_department, performance_status, created_by, created_on)
-            VALUES (?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO departments (department_id, department_name, LM_of_department, performance_status, created_by, created_on, is_active, organization_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         `;
 
-        await new Promise((resolve, reject) => {
-            db.query(insertDepartmentQuery, [department_id, department_name, number_of_employees, LM_of_department, performance_status, userId, pakistanTime], (err, results) => {
-                if(err){
+        const result = await new Promise((resolve, reject) => {
+            db.query(insertDepartmentQuery, [department_id, department_name, LM_of_department, performance_status, userId, pakistanTime, 1, organization_id], (err, results) => {
+                if (err) {
                     return reject(err);
                 }
-                if(results.affectedRows === 1){
-                    console.log("Department Data inserted Successfully");
-                    resolve();
-                }
-                else{
-                    reject(new Error("Data Insertion failed"));
-                }
+                resolve(results);
             });
         });
 
-        return res.status(201).send({
-            success: true,
-            message: "Department created successfully"
-        });
+        // Check if the row was inserted
+        if (result.affectedRows === 1) {
+            const insertedDepartmentId = result.insertId;
+
+            // Fetch the inserted department
+            const fetchDepartmentQuery = `
+                SELECT * FROM departments WHERE dept_id = ?;
+            `;
+            const department = await new Promise((resolve, reject) => {
+                db.query(fetchDepartmentQuery, [insertedDepartmentId], (err, results) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(results[0]);
+                });
+            });
+
+            const insertedUserDepartmentsData = `
+                INSERT INTO user_departments(user_id, department_id)
+                VALUES (?, ?);
+            `;
+
+            await new Promise((resolve, reject) => {
+                db.query(insertedUserDepartmentsData, [userId, insertedDepartmentId], (err, results) => {
+                    if(err){
+                        reject(err);
+                    }
+                    else{
+                        resolve(results);
+                    }
+                });
+            });
+
+            return res.status(201).send({
+                success: true,
+                message: "Department created successfully",
+                department: department
+            });
+        }
         
     } catch (error) {
         console.log("Error while creating department: ", error);

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 export const updateDepartment = async (req, res) => {
     try {
         const { dept_id } = req.params;
-        const { department_id, department_name, number_of_employees, LM_of_department, performance_status } = req.body;
+        const { department_id, department_name, LM_of_department, performance_status } = req.body;
 
         // Check if the Authorization header exists
         let token = req.header("Authorization");
@@ -81,10 +81,6 @@ export const updateDepartment = async (req, res) => {
         if (department_name) {
             updateFields.push("department_name = ?");
             updateValues.push(department_name);
-        }
-        if (number_of_employees) {
-            updateFields.push("number_of_employees = ?");
-            updateValues.push(number_of_employees);
         }
         if (LM_of_department) {
             updateFields.push("LM_of_department = ?");

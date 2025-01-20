@@ -49,7 +49,7 @@ export const verifyOTP = async (req, res) => {
         }
 
         // Update the user record to nullify OTP and otpExpires
-        const updateUserQuery = `UPDATE users SET otp = 0, otpExpires = NULL WHERE user_id = ?;`;
+        const updateUserQuery = `UPDATE users SET otp = 0, otp_expires = NULL WHERE user_id = ?;`;
 
         await new Promise((resolve, reject) => {
             db.query(updateUserQuery, [userId], (err, results) => {

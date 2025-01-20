@@ -5,9 +5,9 @@ export const createOrganization = async (req, res) => {
 
     try {
         
-        let {name, type, email, phone, noOfDepartments, totalEmployees, address, webURL, startDate} = req.body;
+        let {name, type, email, phone, address, webURL, startDate} = req.body;
 
-        if(!name || !type || !email || !phone || !noOfDepartments || !totalEmployees || !address || !webURL || !startDate){
+        if(!name || !type || !email || !phone || !address || !webURL || !startDate){
             return res.status(400).send({
                 success: false,
                 message: "Missing Required fields! All fields are required"
@@ -31,20 +31,19 @@ export const createOrganization = async (req, res) => {
         // Check if 'organizations' table exists, create it if it doesn't
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS organizations (
-                organization_id INT PRIMARY KEY AUTO_INCREMENT,
+                organization_id INT AUTO_INCREMENT PRIMARY KEY,
                 organization_name VARCHAR(255),
                 type VARCHAR(255),
                 email VARCHAR(255),
                 phone VARCHAR(20),
-                no_of_departments INT,
-                total_employees INT,
                 address VARCHAR(255),
                 webURL VARCHAR(255),
                 start_date DATE,
                 created_by INT,
-                created_on DATETIME,
-                CONSTRAINT fk_organization_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+                created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+                is_active TINYINT DEFAULT 1
             );
+
         `;
 
         await new Promise((resolve, reject) => {
@@ -84,8 +83,8 @@ export const createOrganization = async (req, res) => {
 
 
         const insertOrganizationQuery = `
-            INSERT INTO organizations (organization_name, type, email, phone, no_of_departments, total_employees, address, webURL, start_date, created_by, created_on)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO organizations (organization_name, type, email, phone, address, webURL, start_date, created_by, created_on, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
 
         // Get the current timestamp and adjust for Pakistan time (GMT+5)
@@ -100,7 +99,7 @@ export const createOrganization = async (req, res) => {
         const result = await new Promise((resolve, reject) => {
             db.query(
                 insertOrganizationQuery,
-                [name, type, email, phone, noOfDepartments, totalEmployees, address, webURL, startDate, userId, pakistanTime],
+                [name, type, email, phone, address, webURL, startDate, userId, pakistanTime, 1],
                 (err, results) => {
                     if (err) {
                         return reject(err);

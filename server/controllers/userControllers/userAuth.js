@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import db from "../../config/db.js";
-import { hashPassword } from "../../helpers/userHelpers.js";
+import { comparePassword, hashPassword } from "../../helpers/userHelpers.js";
 import nodemailer from "nodemailer";
 
 const getExampleData = (req, res) => {
@@ -33,16 +33,21 @@ const registerUser = async (req, res) => {
             CREATE TABLE IF NOT EXISTS users (
                 user_id INT AUTO_INCREMENT PRIMARY KEY,
                 full_name VARCHAR(255) NOT NULL,
-                user_name VARCHAR(255) NOT NULL UNIQUE,
+                user_name VARCHAR(255) UNIQUE,
                 phone VARCHAR(20) NOT NULL,
-                email VARCHAR(255) NOT NULL UNIQUE,
-                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255),
                 profile_photo VARCHAR(255),
                 role_id INT,
-                otp VARCHAR(6) NOT NULL,
-                otpExpires DATETIME NOT NULL,
+                is_active TINYINT DEFAULT 1,
+                otp VARCHAR(6),
+                otp_expires DATETIME,
                 reset_token VARCHAR(255),
-                reset_token_expires DATETIME
+                reset_token_expires DATETIME,
+                verification_token VARCHAR(255),
+                created_by INT,
+                created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE SET NULL
             );
         `;
 
@@ -92,12 +97,12 @@ const registerUser = async (req, res) => {
         const profilePhotoPath = req.file ? req.file.path : null;
 
         const insertUserQuery = `
-            INSERT INTO users (full_name, user_name, phone, email, password, profile_photo, role_id, otp, otpExpires, reset_token, reset_token_expires) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO users (full_name, user_name, phone, email, password, profile_photo, role_id, is_active, otp, otp_expires, reset_token, reset_token_expires, verification_token, created_by) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
 
         const savedUserId = await new Promise((resolve, reject) => {
-            db.query(insertUserQuery, [fullname, username, phone, email, hashedPassword, profilePhotoPath, 1, otp, otpExpires, null, null], (err, results) => {
+            db.query(insertUserQuery, [fullname, username, phone, email, hashedPassword, profilePhotoPath, 1, 1, otp, otpExpires, null, null, null, null, pakistanOffset], (err, results) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -112,7 +117,7 @@ const registerUser = async (req, res) => {
         
 
         // Generate JWT token with the user's ID
-        const token = jwt.sign({ id: savedUserId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        const token = jwt.sign({ id: savedUserId }, process.env.JWT_SECRET, { expiresIn: "1d" });
         console.log('Generated Token:', token);
 
         // Send OTP via email
@@ -165,7 +170,7 @@ const loginUser = async (req, res) => {
         let {email, password} = req.body;
 
         if(!email || !password){
-            return res.status(400).send({ message: "Email and Password Required for Login" });
+            return res.status(400).send({ message: "Email and Password required for Login" });
         }
 
         const getUserQuery = `SELECT * FROM users WHERE otp = 0 AND email = ?;`;
@@ -191,7 +196,31 @@ const loginUser = async (req, res) => {
             });
         }
 
-        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        const hashedPassword = await new Promise((resolve, reject) => {
+            db.query(getUserQuery, [email], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                if(results.length > 0){
+                    resolve(results[0].password);
+                }
+                else{
+                    resolve(null);
+                }
+            });
+        });
+     
+
+        const isMatch = await comparePassword(password, hashedPassword);
+
+        if(!isMatch){
+            return res.status(401).send({
+                success: false,
+                message: "Password is not correct",
+            });
+        }
+
+        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
         return res.status(200).send({
             success: true,
