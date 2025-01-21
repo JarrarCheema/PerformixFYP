@@ -173,7 +173,7 @@ const loginUser = async (req, res) => {
             return res.status(400).send({ message: "Email and Password required for Login" });
         }
 
-        const getUserQuery = `SELECT * FROM users WHERE otp = 0 AND email = ?;`;
+        const getUserQuery = `SELECT * FROM users WHERE (otp = 0 OR otp IS NULL) AND email = ?;`;
 
         const userId = await new Promise((resolve, reject) => {
             db.query(getUserQuery, [email], (err, results) => {
