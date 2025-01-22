@@ -11,6 +11,7 @@ import { addEmployee } from "../controllers/employeeControllers/addEmployee.js";
 import { verifyEmail } from "../controllers/employeeControllers/verifyEmail.js";
 import { setCredentials } from "../controllers/employeeControllers/setUsernameAndPassword.js";
 import { setProfilePicture } from './../controllers/employeeControllers/setProfilePhoto.js';
+import { getAllLineManagers } from "../controllers/userControllers/getAllLineManagers.js";
 
 router.get('/', getExampleData);
 
@@ -37,5 +38,8 @@ router.get('/verify-email', verifyEmail);
 router.post('/set-credentials', setCredentials);
 
 router.put('/set-pfp', verifyToken, upload.single('profilePhoto'), setProfilePicture);
+
+
+router.get('/get-all-LMs', verifyToken, getAllLineManagers);
 
 export default router;

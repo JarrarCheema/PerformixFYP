@@ -5,7 +5,7 @@ export const createDepartment = async (req , res) => {
 
     try {
         
-        const { department_id, department_name, LM_of_department, performance_status, organization_id } = req.body;
+        const { department_id, department_name, performance_status, organization_id } = req.body;
         
         // Check if the Authorization header exists
         let token = req.header("Authorization");
@@ -13,7 +13,7 @@ export const createDepartment = async (req , res) => {
             return res.status(401).send({ message: "Authorization token is required" });
         }
 
-        if(!department_id || !department_name || !LM_of_department || !performance_status || !organization_id){
+        if(!department_id || !department_name || !performance_status || !organization_id){
             return res.status(400).send({
                 success: false,
                 message: "All fields are required"
@@ -84,27 +84,27 @@ export const createDepartment = async (req , res) => {
 
 
         // CHECK USER EXIST WITH THE GIVEN LM ID
-        const checkUserQuery = `
-            SELECT * FROM users WHERE user_id = ?;
-        `;
+        // const checkUserQuery = `
+        //     SELECT * FROM users WHERE user_id = ?;
+        // `;
 
-        const user = await new Promise((resolve , reject) => {
-            db.query(checkUserQuery, [LM_of_department], (err, results) => {
-                if(err){
-                    reject(err);
-                }
-                else{
-                    resolve(results[0]);
-                }
-            });
-        });
+        // const user = await new Promise((resolve , reject) => {
+        //     db.query(checkUserQuery, [LM_of_department], (err, results) => {
+        //         if(err){
+        //             reject(err);
+        //         }
+        //         else{
+        //             resolve(results[0]);
+        //         }
+        //     });
+        // });
 
-        if(!user){
-            return res.status(401).send({
-                success: false,
-                message: "User ID is not correct. No user Exist with this ID"
-            });
-        }
+        // if(!user){
+        //     return res.status(401).send({
+        //         success: false,
+        //         message: "User ID is not correct. No user Exist with this ID"
+        //     });
+        // }
 
 
 
@@ -138,12 +138,12 @@ export const createDepartment = async (req , res) => {
         const pakistanTime = currentTimestamp.toISOString().slice(0, 19).replace('T', ' ');
 
         const insertDepartmentQuery = `
-            INSERT INTO departments (department_id, department_name, LM_of_department, performance_status, created_by, created_on, is_active, organization_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO departments (department_id, department_name, performance_status, created_by, created_on, is_active, organization_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?);
         `;
 
         const result = await new Promise((resolve, reject) => {
-            db.query(insertDepartmentQuery, [department_id, department_name, LM_of_department, performance_status, userId, pakistanTime, 1, organization_id], (err, results) => {
+            db.query(insertDepartmentQuery, [department_id, department_name, performance_status, userId, pakistanTime, 1, organization_id], (err, results) => {
                 if (err) {
                     return reject(err);
                 }

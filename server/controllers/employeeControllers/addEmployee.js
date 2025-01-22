@@ -7,10 +7,6 @@ export const addEmployee = async (req, res) => {
     try {
             const { full_name, email, phone, department_id, role_id } = req.body;
             const token = req.header('Authorization');
-
-            console.log(typeof(role_id));
-            console.log(typeof(parseInt(role_id)));
-            
             
 
             if (!full_name || !email || !phone || !department_id || !role_id) {
@@ -62,7 +58,7 @@ export const addEmployee = async (req, res) => {
                 });
             });
 
-            console.log("Department: ", department);
+            // console.log("Department: ", department);
             
 
             if(!department){
@@ -113,7 +109,7 @@ export const addEmployee = async (req, res) => {
                 });
             });
 
-            console.log("Insert User ID: ", userId);
+            // console.log("Insert User ID: ", userId);
             
 
             // Insert in Users Departments Table
@@ -127,6 +123,27 @@ export const addEmployee = async (req, res) => {
                     resolve(result);
                 });
             });
+
+            if(role_id === '2'){
+                const addLMInDepartment = `
+                    UPDATE departments SET LM_of_department = ? WHERE dept_id = ?;
+                `;
+
+                const result = await new Promise((resolve, reject) => {
+                    db.query(addLMInDepartment, [userId, department_id], (err, results) => {
+                        if(err){
+                            reject(err);
+                        }
+                        else{
+                            resolve(results.affectedRows);
+                        }
+                    });
+                });
+
+                if(result < 1){
+                    console.log("Created Line Manager cannot be able to set in the Departments Table");
+                }
+            }
 
             // Send verification email
             const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
