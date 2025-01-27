@@ -5,11 +5,11 @@ import jwt from 'jsonwebtoken';
 
 export const addEmployee = async (req, res) => {
     try {
-            const { full_name, email, phone, department_id, role_id } = req.body;
+            const { full_name, email, phone, department_id, role_id, designation} = req.body;
             const token = req.header('Authorization');
             
 
-            if (!full_name || !email || !phone || !department_id || !role_id) {
+            if (!full_name || !email || !phone || !department_id || !role_id, !designation) {
                 return res.status(400).json({
                     success: false,
                     message: "All fields are required",
@@ -20,6 +20,13 @@ export const addEmployee = async (req, res) => {
                 return res.status(400).send({
                     success: false,
                     message: "Incorrect Role ID"
+                });
+            }
+
+            if(role_id === '2' && designation !== 'Line Manager'){
+                return res.status(400).send({
+                    success: false,
+                    message: "Role-Id [2] must only be assign to Line Manager"
                 });
             }
             
@@ -98,12 +105,12 @@ export const addEmployee = async (req, res) => {
             const verificationToken = crypto.randomBytes(32).toString('hex');
 
             const insertUserQuery = `
-                INSERT INTO users (full_name, email, phone, role_id, verification_token, created_by, is_active)
-                VALUES (?, ?, ?, ?, ?, ?, ?);
+                INSERT INTO users (full_name, email, phone, role_id, designation, verification_token, created_by, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
             `;
 
             const userId = await new Promise((resolve, reject) => {
-                db.query(insertUserQuery, [full_name, email, phone, role_id, verificationToken, admin_id, 0], (err, result) => {
+                db.query(insertUserQuery, [full_name, email, phone, role_id, designation, verificationToken, admin_id, 0], (err, result) => {
                     if (err) return reject(err);
                     resolve(result.insertId); // Get the user_id of the inserted user
                 });

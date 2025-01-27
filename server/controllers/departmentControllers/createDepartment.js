@@ -5,7 +5,7 @@ export const createDepartment = async (req , res) => {
 
     try {
         
-        const { department_id, department_name, performance_status, organization_id } = req.body;
+        const { department_id, department_name, organization_id } = req.body;
         
         // Check if the Authorization header exists
         let token = req.header("Authorization");
@@ -13,7 +13,7 @@ export const createDepartment = async (req , res) => {
             return res.status(401).send({ message: "Authorization token is required" });
         }
 
-        if(!department_id || !department_name || !performance_status || !organization_id){
+        if(!department_id || !department_name || !organization_id){
             return res.status(400).send({
                 success: false,
                 message: "All fields are required"
@@ -34,7 +34,6 @@ export const createDepartment = async (req , res) => {
                 department_id VARCHAR(20),
                 department_name VARCHAR(255),
                 LM_of_department INT,
-                performance_status VARCHAR(255),
                 created_by INT,
                 created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
                 is_active TINYINT DEFAULT 1,
@@ -138,12 +137,12 @@ export const createDepartment = async (req , res) => {
         const pakistanTime = currentTimestamp.toISOString().slice(0, 19).replace('T', ' ');
 
         const insertDepartmentQuery = `
-            INSERT INTO departments (department_id, department_name, performance_status, created_by, created_on, is_active, organization_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO departments (department_id, department_name, created_by, created_on, is_active, organization_id)
+            VALUES (?, ?, ?, ?, ?, ?);
         `;
 
         const result = await new Promise((resolve, reject) => {
-            db.query(insertDepartmentQuery, [department_id, department_name, performance_status, userId, pakistanTime, 1, organization_id], (err, results) => {
+            db.query(insertDepartmentQuery, [department_id, department_name, userId, pakistanTime, 1, organization_id], (err, results) => {
                 if (err) {
                     return reject(err);
                 }
@@ -167,6 +166,33 @@ export const createDepartment = async (req , res) => {
                     resolve(results[0]);
                 });
             });
+
+
+            const createQuery = `
+                CREATE TABLE user_departments (
+                    user_id INT,
+                    department_id INT,
+                    PRIMARY KEY (user_id, department_id),
+                    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                    CONSTRAINT fk_department_id FOREIGN KEY (department_id) REFERENCES departments(dept_id) ON DELETE CASCADE
+                );
+            `;
+
+
+            await new Promise((resolve, reject) => {
+                db.query(createQuery, (err, results) => {
+                    if(err){
+                        console.error("Error creating table:", err);
+                        reject(err);
+                    }
+                    else{
+                        console.log("Checked/Created 'user_departments' table.");
+                        resolve(results);
+                    }
+                });
+            });
+
+
 
             const insertedUserDepartmentsData = `
                 INSERT INTO user_departments(user_id, department_id)

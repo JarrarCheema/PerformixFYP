@@ -12,6 +12,8 @@ import { verifyEmail } from "../controllers/employeeControllers/verifyEmail.js";
 import { setCredentials } from "../controllers/employeeControllers/setUsernameAndPassword.js";
 import { setProfilePicture } from './../controllers/employeeControllers/setProfilePhoto.js';
 import { getAllLineManagers } from "../controllers/userControllers/getAllLineManagers.js";
+import { addEvaluation } from "../controllers/employeeControllers/addEvaluation.js";
+import { addLMEvaluation } from "../controllers/userControllers/addLMEvaluation.js";
 
 router.get('/', getExampleData);
 
@@ -29,7 +31,11 @@ router.post('/reset-password/:token', resetPassword);
 
 router.get('/get-user', getUser);
 
-// Employee Routes
+
+router.post('/evaluate-lm', verifyToken, addLMEvaluation);
+
+
+// Employee(Line Manager and Staff) Routes
 
 router.post('/register-employee', verifyToken, addEmployee);
 
@@ -41,5 +47,8 @@ router.put('/set-pfp', verifyToken, upload.single('profilePhoto'), setProfilePic
 
 
 router.get('/get-all-LMs', verifyToken, getAllLineManagers);
+
+
+router.post('/evaluate-employee', verifyToken, addEvaluation);
 
 export default router;

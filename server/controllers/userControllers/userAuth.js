@@ -39,6 +39,7 @@ const registerUser = async (req, res) => {
                 password VARCHAR(255),
                 profile_photo VARCHAR(255),
                 role_id INT,
+                designation VARCHAR(255),
                 is_active TINYINT DEFAULT 1,
                 otp VARCHAR(6),
                 otp_expires DATETIME,
@@ -97,12 +98,12 @@ const registerUser = async (req, res) => {
         const profilePhotoPath = req.file ? req.file.path : null;
 
         const insertUserQuery = `
-            INSERT INTO users (full_name, user_name, phone, email, password, profile_photo, role_id, is_active, otp, otp_expires, reset_token, reset_token_expires, verification_token, created_by) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO users (full_name, user_name, phone, email, password, profile_photo, role_id, designation, is_active, otp, otp_expires, reset_token, reset_token_expires, verification_token, created_by) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         `;
 
         const savedUserId = await new Promise((resolve, reject) => {
-            db.query(insertUserQuery, [fullname, username, phone, email, hashedPassword, profilePhotoPath, 1, 1, otp, otpExpires, null, null, null, null, pakistanOffset], (err, results) => {
+            db.query(insertUserQuery, [fullname, username, phone, email, hashedPassword, profilePhotoPath, 1, "Admin", 1, otp, otpExpires, null, null, null, null, pakistanOffset], (err, results) => {
                 if (err) {
                     reject(err);
                 } else {

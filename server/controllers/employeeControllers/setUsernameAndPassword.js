@@ -60,7 +60,7 @@ export const setCredentials = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         const updateCredentialsQuery = `
-            UPDATE users SET user_name = ?, password = ?, is_active = ? WHERE user_id = ?;
+            UPDATE users SET user_name = ?, password = ?, is_active = ? WHERE user_id = ? AND user_name IS NULL AND password IS NULL;
         `;
         await new Promise((resolve, reject) => {
             db.query(updateCredentialsQuery, [userName, hashedPassword, 1, userId], (err, results) => {
