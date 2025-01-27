@@ -14,6 +14,10 @@ import { setProfilePicture } from './../controllers/employeeControllers/setProfi
 import { getAllLineManagers } from "../controllers/userControllers/getAllLineManagers.js";
 import { addEvaluation } from "../controllers/employeeControllers/addEvaluation.js";
 import { addLMEvaluation } from "../controllers/userControllers/addLMEvaluation.js";
+import { updateLMEvaluation } from "../controllers/userControllers/updateLMEvaluation.js";
+import { updateEvaluation } from "../controllers/employeeControllers/updateEvaluation.js";
+import { getEmployeeEvaluation } from "../controllers/employeeControllers/getEvaluation.js";
+import { getLMEvaluation } from "../controllers/userControllers/getLMEvaluation.js";
 
 router.get('/', getExampleData);
 
@@ -34,6 +38,10 @@ router.get('/get-user', getUser);
 
 router.post('/evaluate-lm', verifyToken, addLMEvaluation);
 
+router.put('/update-lm-evaluation/:evaluation_id', verifyToken, updateLMEvaluation);
+
+router.get('/get-lm-evaluation/:evaluation_id', verifyToken, getLMEvaluation);
+
 
 // Employee(Line Manager and Staff) Routes
 
@@ -50,5 +58,10 @@ router.get('/get-all-LMs', verifyToken, getAllLineManagers);
 
 
 router.post('/evaluate-employee', verifyToken, addEvaluation);
+
+
+router.put('/update-emp-evaluation/:evaluation_id', verifyToken, updateEvaluation);
+
+router.get('/get-emp-evaluation/:evaluation_id', verifyToken, getEmployeeEvaluation);
 
 export default router;
