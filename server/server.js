@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import "./config/db.js";
 import userRoutes from "./routes/userRoutes.js";
 import organizationRoutes from "./routes/organizationRoutes.js";
 import departmentRoutes from "./routes/departmentRoutes.js";
@@ -13,11 +14,8 @@ import performanceParameterRoutes from './routes/performenceParameterRoutes.js';
 const app = express();
 
 // Middleware to parse JSON data
-app.use(bodyParser.json());  // Handles application/json
-
-// Middleware to parse URL-encoded form data
-app.use(express.urlencoded({ extended: true })); // Handles application/x-www-form-urlencoded
-
+app.use(bodyParser.json());  
+app.use(express.urlencoded({ extended: true })); 
 app.use(cors());
 
 // Use routes
