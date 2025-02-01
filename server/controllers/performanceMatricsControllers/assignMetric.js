@@ -11,7 +11,7 @@ export const assignMetric = async (req , res) => {
         if(!metric_id || !line_manager_id || !department_id){
             return res.status(400).send({
                 success: false,
-                message: "Metric, Line Manager and Departments IDS are required"
+                message: "Metric's, Line Manager's and Department's Ids are required"
             });
         }
 
@@ -87,11 +87,11 @@ export const assignMetric = async (req , res) => {
 
         // CHECK if the department exist
         const checkDepartmentExist = `
-            SELECT * FROM departments WHERE dept_id = ? AND LM_of_department = ? AND is_active = 1;
+            SELECT * FROM departments WHERE dept_id = ? AND is_active = 1;
         `;
 
         const departmentExist = await new Promise((resolve, reject) => {
-            db.query(checkDepartmentExist, [department_id, line_manager_id], (err, results) => {
+            db.query(checkDepartmentExist, [department_id], (err, results) => {
                 if(err){
                     reject(err);
                 }
@@ -104,7 +104,33 @@ export const assignMetric = async (req , res) => {
         if(!departmentExist){
             return res.status(400).send({
                 success: false,
-                message: "There is no Active Department Exist with the given ID department Id or have the given ID of Line Manager"
+                message: "There is no Active Department Exist with the given department Id"
+            });
+        }
+
+
+
+        // CHECK if the Line Manager is valid
+        const checkLMIsValid = `
+            SELECT * FROM users u JOIN user_departments ud ON u.user_id = ud.user_id WHERE ud.department_id = ? AND ud.user_id = ? AND ud.is_line_manager = 1;
+
+        `;
+
+        const isLMValid = await new Promise((resolve, reject) => {
+            db.query(checkLMIsValid, [department_id, line_manager_id], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results[0]);
+                }
+            });
+        });
+
+        if(!isLMValid){
+            return res.status(400).send({
+                success: false,
+                message: "Line Manager is not valid for this Department"
             });
         }
         

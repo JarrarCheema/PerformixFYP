@@ -132,12 +132,12 @@ export const addEmployee = async (req, res) => {
             });
 
             if(role_id === '2'){
-                const addLMInDepartment = `
-                    UPDATE departments SET LM_of_department = ? WHERE dept_id = ?;
+                const assignLMToDepartment = `
+                    UPDATE user_departments SET is_line_manager = ? WHERE user_id = ? AND department_id = ?;
                 `;
 
                 const result = await new Promise((resolve, reject) => {
-                    db.query(addLMInDepartment, [userId, department_id], (err, results) => {
+                    db.query(assignLMToDepartment, [1, userId, department_id], (err, results) => {
                         if(err){
                             reject(err);
                         }

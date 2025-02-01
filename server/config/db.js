@@ -8,14 +8,14 @@ const DB_USER = process.env.DB_USER;
 const DB_PASS = process.env.DB_PASS;
 const DB_NAME = process.env.DB_NAME;
 
-const connection = mysql.createConnection({
+// Initial connection without database selection
+const initialConnection = mysql.createConnection({
     host: DB_HOST,
     user: DB_USER,
     password: DB_PASS,
 });
 
-// Connect to MySQL (without selecting a database initially)
-connection.connect((err) => {
+initialConnection.connect((err) => {
     if (err) {
         console.error("Error connecting to MySQL:", err.stack);
         return;
@@ -23,22 +23,18 @@ connection.connect((err) => {
     console.log("Connected to MySQL server.");
 
     // Create database if it doesn't exist
-    connection.query(`CREATE DATABASE IF NOT EXISTS ${DB_NAME}`, (err, result) => {
+    initialConnection.query(`CREATE DATABASE IF NOT EXISTS ${DB_NAME}`, (err) => {
         if (err) {
             console.error("Error creating database:", err);
             return;
         }
         console.log(`Database '${DB_NAME}' is ready.`);
 
-        // Now connect to the created database
-        const dbConnection = mysql.createConnection({
-            host: DB_HOST,
-            user: DB_USER,
-            password: DB_PASS,
-            database: DB_NAME
-        });
+        // Close the initial connection
+        initialConnection.end();
 
-        dbConnection.connect((err) => {
+        // Reconnect and select the database
+        connection.connect((err) => {
             if (err) {
                 console.error("Error connecting to the database:", err);
                 return;
@@ -53,7 +49,7 @@ connection.connect((err) => {
                 );
             `;
 
-            dbConnection.query(createRolesTable, (err, result) => {
+            connection.query(createRolesTable, (err) => {
                 if (err) {
                     console.error("Error creating 'roles' table:", err);
                     return;
@@ -68,18 +64,24 @@ connection.connect((err) => {
                     ('Staff');
                 `;
 
-                dbConnection.query(insertRoles, (err, result) => {
+                connection.query(insertRoles, (err) => {
                     if (err) {
                         console.error("Error inserting default roles:", err);
                         return;
                     }
                     console.log("Default roles inserted.");
                 });
-
-                dbConnection.end(); // Close the connection after setup
             });
         });
     });
+});
+
+// Export the connection with the selected database
+const connection = mysql.createConnection({
+    host: DB_HOST,
+    user: DB_USER,
+    password: DB_PASS,
+    database: DB_NAME,  // Ensure database is selected here
 });
 
 export default connection;

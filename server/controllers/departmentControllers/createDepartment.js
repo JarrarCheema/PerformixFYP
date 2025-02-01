@@ -33,13 +33,11 @@ export const createDepartment = async (req , res) => {
                 dept_id INT AUTO_INCREMENT PRIMARY KEY,
                 department_id VARCHAR(20),
                 department_name VARCHAR(255),
-                LM_of_department INT,
                 created_by INT,
                 created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
                 is_active TINYINT DEFAULT 1,
                 organization_id INT,
-                CONSTRAINT fk_organization_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE SET NULL,
-                CONSTRAINT fk_lm_id FOREIGN KEY (LM_of_department) REFERENCES users(user_id) ON DELETE SET NULL
+                CONSTRAINT fk_organization_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE SET NULL
             );
         `;
 
@@ -169,9 +167,10 @@ export const createDepartment = async (req , res) => {
 
 
             const createQuery = `
-                CREATE TABLE user_departments (
+                CREATE TABLE IF NOT EXISTS user_departments (
                     user_id INT,
                     department_id INT,
+                    is_line_manager TINYINT DEFAULT 0,
                     PRIMARY KEY (user_id, department_id),
                     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
                     CONSTRAINT fk_department_id FOREIGN KEY (department_id) REFERENCES departments(dept_id) ON DELETE CASCADE
@@ -195,12 +194,12 @@ export const createDepartment = async (req , res) => {
 
 
             const insertedUserDepartmentsData = `
-                INSERT INTO user_departments(user_id, department_id)
-                VALUES (?, ?);
+                INSERT INTO user_departments(user_id, department_id, is_line_manager)
+                VALUES (?, ?, ?);
             `;
 
             await new Promise((resolve, reject) => {
-                db.query(insertedUserDepartmentsData, [userId, insertedDepartmentId], (err, results) => {
+                db.query(insertedUserDepartmentsData, [userId, insertedDepartmentId, 0], (err, results) => {
                     if(err){
                         reject(err);
                     }

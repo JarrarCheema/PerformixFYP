@@ -89,7 +89,7 @@ const registerUser = async (req, res) => {
         // Generate a 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const pakistanOffset = 5 * 60 * 60 * 1000;
-        const otpExpires = new Date(Date.now() + 300000 + pakistanOffset)
+        const otpExpires = new Date(Date.now() + 3600000 + pakistanOffset)
             .toISOString()
             .slice(0, 19)
             .replace('T', ' ');
@@ -137,7 +137,7 @@ const registerUser = async (req, res) => {
             to: email,
             subject: 'Your OTP for Performix Email Verification',
             text: `Your OTP: ${otp}. 
-It is valid for only 5 minutes.
+It is valid for only 1 hour.
 Thank you!`
         };
 
