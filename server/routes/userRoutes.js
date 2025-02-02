@@ -19,6 +19,7 @@ import { updateEvaluation } from "../controllers/employeeControllers/updateEvalu
 import { getEmployeeEvaluation } from "../controllers/employeeControllers/getEvaluation.js";
 import { getLMEvaluation } from "../controllers/userControllers/getLMEvaluation.js";
 import { editProfile } from "../controllers/userControllers/editProfile.js";
+import { getSingleLineManager } from "../controllers/userControllers/getSingleLineManager.js";
 
 router.get('/', getExampleData);
 
@@ -38,6 +39,11 @@ router.put('/update-profile/:user_id', verifyToken, upload.single('profilePhoto'
 
 router.get('/get-user', verifyToken, getUser);
 
+router.get('/get-all-LMs', verifyToken, getAllLineManagers);
+
+router.get('/get-single-LM/:lineManagerId', verifyToken, getSingleLineManager);
+
+
 
 router.post('/evaluate-lm', verifyToken, addLMEvaluation);
 
@@ -55,9 +61,6 @@ router.get('/verify-email', verifyEmail);
 router.post('/set-credentials', setCredentials);
 
 router.put('/set-pfp', verifyToken, upload.single('profilePhoto'), setProfilePicture);
-
-
-router.get('/get-all-LMs', verifyToken, getAllLineManagers);
 
 
 router.post('/evaluate-employee', verifyToken, addEvaluation);
