@@ -48,6 +48,7 @@ const registerUser = async (req, res) => {
                 verification_token VARCHAR(255),
                 created_by INT,
                 created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+                selected_organization_id INT DEFAULT NULL,
                 CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE SET NULL
             );
         `;

@@ -18,6 +18,7 @@ import { updateLMEvaluation } from "../controllers/userControllers/updateLMEvalu
 import { updateEvaluation } from "../controllers/employeeControllers/updateEvaluation.js";
 import { getEmployeeEvaluation } from "../controllers/employeeControllers/getEvaluation.js";
 import { getLMEvaluation } from "../controllers/userControllers/getLMEvaluation.js";
+import { editProfile } from "../controllers/userControllers/editProfile.js";
 
 router.get('/', getExampleData);
 
@@ -33,7 +34,9 @@ router.post('/request-reset-password', requestResetPassword);
 
 router.post('/reset-password/:token', resetPassword);
 
-router.get('/get-user', getUser);
+router.put('/update-profile/:user_id', verifyToken, upload.single('profilePhoto'), editProfile);
+
+router.get('/get-user', verifyToken, getUser);
 
 
 router.post('/evaluate-lm', verifyToken, addLMEvaluation);

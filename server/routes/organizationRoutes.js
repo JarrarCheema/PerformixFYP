@@ -5,6 +5,7 @@ import { updateOrganization } from "../controllers/organizationControllers/updat
 import { getSingleOrganization } from "../controllers/organizationControllers/getSingleOrganization.js";
 import { getAllOrganizations } from "../controllers/organizationControllers/getAllOrganizations.js";
 import { deleteOrganization } from "../controllers/organizationControllers/deleteOrganization.js";
+import { selectOrganization } from "../controllers/organizationControllers/selectOrganization.js";
 
 const router = express.Router();
 
@@ -17,5 +18,7 @@ router.get('/get-organization/:id', verifyToken, getSingleOrganization);
 router.get('/get-organizations', verifyToken, getAllOrganizations);
 
 router.delete('/delete-organization/:id', verifyToken, deleteOrganization);
+
+router.put('/select-organization', verifyToken, selectOrganization);
 
 export default router;
