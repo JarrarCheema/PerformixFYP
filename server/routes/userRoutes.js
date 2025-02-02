@@ -20,6 +20,8 @@ import { getEmployeeEvaluation } from "../controllers/employeeControllers/getEva
 import { getLMEvaluation } from "../controllers/userControllers/getLMEvaluation.js";
 import { editProfile } from "../controllers/userControllers/editProfile.js";
 import { getSingleLineManager } from "../controllers/userControllers/getSingleLineManager.js";
+import { getAllStaffs } from "../controllers/userControllers/getAllStaffs.js";
+import { getSingleStaff } from "../controllers/userControllers/getSingleStaff.js";
 
 router.get('/', getExampleData);
 
@@ -39,9 +41,17 @@ router.put('/update-profile/:user_id', verifyToken, upload.single('profilePhoto'
 
 router.get('/get-user', verifyToken, getUser);
 
+
+// GET LINE MANAGERS
 router.get('/get-all-LMs', verifyToken, getAllLineManagers);
 
 router.get('/get-single-LM/:lineManagerId', verifyToken, getSingleLineManager);
+
+
+// GET STAFFS
+router.get('/get-all-staffs', verifyToken, getAllStaffs);
+
+router.get('/get-single-staff/:staffId', verifyToken, getSingleStaff);
 
 
 
