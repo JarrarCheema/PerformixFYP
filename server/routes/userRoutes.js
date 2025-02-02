@@ -22,6 +22,7 @@ import { editProfile } from "../controllers/userControllers/editProfile.js";
 import { getSingleLineManager } from "../controllers/userControllers/getSingleLineManager.js";
 import { getAllStaffs } from "../controllers/userControllers/getAllStaffs.js";
 import { getSingleStaff } from "../controllers/userControllers/getSingleStaff.js";
+import { viewAllPerformanceMetrics } from "../controllers/userControllers/viewAllPerformanceMetric.js";
 
 router.get('/', getExampleData);
 
@@ -52,6 +53,10 @@ router.get('/get-single-LM/:lineManagerId', verifyToken, getSingleLineManager);
 router.get('/get-all-staffs', verifyToken, getAllStaffs);
 
 router.get('/get-single-staff/:staffId', verifyToken, getSingleStaff);
+
+
+// VIEW ALL PERFORMANCE METRICS
+router.get('/view-performance-metrics', verifyToken, viewAllPerformanceMetrics);
 
 
 
