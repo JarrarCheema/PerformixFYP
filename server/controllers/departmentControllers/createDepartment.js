@@ -28,6 +28,32 @@ export const createDepartment = async (req , res) => {
             return res.status(401).send({ message: "Invalid token" });
         }
 
+
+        // Check if created user is Admin or not
+        const checkifAdmin = `
+            SELECT * FROM users WHERE user_id = ? AND (created_by IS NULL OR created_by = 0);
+        `
+
+        const admin = await new Promise((resolve, reject) => {
+            db.query(checkifAdmin, [userId], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results[0]);
+                }
+            });
+        });
+
+        if(!admin){
+            return res.status(400).send({
+                success: false,
+                message: "Only Admin user can create Department"
+            });
+        }
+        
+
+
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS departments (
                 dept_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -58,11 +84,11 @@ export const createDepartment = async (req , res) => {
 
         // CHECK ORGANIZATION EXIST WITH THE GIVEN ID
         const checkOrganizationQuery = `
-            SELECT * FROM organizations WHERE organization_id = ?;
+            SELECT * FROM organizations WHERE organization_id = ? AND created_by = ?;
         `;
 
         const organization = await new Promise((resolve , reject) => {
-            db.query(checkOrganizationQuery, [organization_id], (err, results) => {
+            db.query(checkOrganizationQuery, [organization_id, userId], (err, results) => {
                 if(err){
                     reject(err);
                 }
@@ -75,7 +101,7 @@ export const createDepartment = async (req , res) => {
         if(!organization){
             return res.status(401).send({
                 success: false,
-                message: "Organization ID is not correct. No Organization Exist with this ID"
+                message: "No Organization Exist with this id made by you"
             });
         }
 

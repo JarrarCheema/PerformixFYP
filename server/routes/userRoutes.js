@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 import upload from "../config/multer.js";
-import { getExampleData, registerUser, loginUser } from "../controllers/userControllers/userAuth.js";
+import { getExampleData, registerUser, loginUser, logoutUser } from "../controllers/userControllers/userAuth.js";
 import { verifyOTP } from "../controllers/userControllers/verifyOTP.js";
 import { verifyToken } from "../middlewares/authorization.js";
 import { requestResetPassword } from "../controllers/userControllers/requestResetPassword.js";
@@ -23,6 +23,7 @@ import { getSingleLineManager } from "../controllers/userControllers/getSingleLi
 import { getAllStaffs } from "../controllers/userControllers/getAllStaffs.js";
 import { getSingleStaff } from "../controllers/userControllers/getSingleStaff.js";
 import { viewAllPerformanceMetrics } from "../controllers/userControllers/viewAllPerformanceMetric.js";
+import { viewDashboard } from "../controllers/employeeControllers/viewDashBoard.js";
 
 router.get('/', getExampleData);
 
@@ -33,6 +34,8 @@ router.post('/register-user', upload.single('profilePhoto'), registerUser);
 router.post('/verify-otp', verifyToken, verifyOTP);
 
 router.post('/login-user', loginUser);
+
+router.post('/logout-user', verifyToken, logoutUser);
 
 router.post('/request-reset-password', requestResetPassword);
 
@@ -59,13 +62,15 @@ router.get('/get-single-staff/:staffId', verifyToken, getSingleStaff);
 router.get('/view-performance-metrics', verifyToken, viewAllPerformanceMetrics);
 
 
-
 router.post('/evaluate-lm', verifyToken, addLMEvaluation);
 
 router.put('/update-lm-evaluation/:evaluation_id', verifyToken, updateLMEvaluation);
 
 router.get('/get-lm-evaluation/:evaluation_id', verifyToken, getLMEvaluation);
 
+
+
+// ---------------------------------------------- BELOW ARE LINE MANAGER AND STAFF ROUTES
 
 // Employee(Line Manager and Staff) Routes
 
@@ -76,6 +81,8 @@ router.get('/verify-email', verifyEmail);
 router.post('/set-credentials', setCredentials);
 
 router.put('/set-pfp', verifyToken, upload.single('profilePhoto'), setProfilePicture);
+
+router.get('/view-dashboard', verifyToken, viewDashboard);
 
 
 router.post('/evaluate-employee', verifyToken, addEvaluation);

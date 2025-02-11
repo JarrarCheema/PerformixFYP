@@ -28,6 +28,30 @@ export const createOrganization = async (req, res) => {
             return res.status(401).send({ message: "Invalid token" });
         }
 
+
+        // Check if created user is Admin or not
+        const checkifAdmin = `
+            SELECT * FROM users WHERE user_id = ? AND (created_by IS NULL OR created_by = 0);
+        `
+
+        const admin = await new Promise((resolve, reject) => {
+            db.query(checkifAdmin, [userId], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results[0]);
+                }
+            });
+        });
+
+        if(!admin){
+            return res.status(400).send({
+                success: false,
+                message: "Only Admin user can create Organization"
+            });
+        }
+
         // Check if 'organizations' table exists, create it if it doesn't
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS organizations (

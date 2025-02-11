@@ -49,6 +49,7 @@ const registerUser = async (req, res) => {
                 created_by INT,
                 created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
                 selected_organization_id INT DEFAULT NULL,
+                is_login TINYINT DEFAULT 0,
                 CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE SET NULL
             );
         `;
@@ -224,6 +225,30 @@ const loginUser = async (req, res) => {
 
         const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
+        // Make the user's is_login field set to (1)
+        const setIsLogin = `
+            UPDATE users SET is_login = 1 WHERE user_id = ?;
+        `;
+
+        const result = await new Promise((resolve, reject) => {
+            db.query(setIsLogin, [userId], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results.affectedRows);
+                }
+            });
+        });
+
+        // if(result == 0){
+        //     return res.status(400).send({
+        //         success: false,
+        //         message: "Cannot able to login the user"
+        //     });
+        // }
+
+
         return res.status(200).send({
             success: true,
             message: "User Log In Successfully",
@@ -243,5 +268,57 @@ const loginUser = async (req, res) => {
 }
 
 
+const logoutUser = async (req, res) => {
+    try {
+        // Check if the Authorization header exists
+        let token = req.header("Authorization");
+        if (!token) {
+            return res.status(401).send({ message: "Authorization token is required" });
+        }
 
-export {getExampleData, registerUser, loginUser}
+        // Verify the token and extract the user ID
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+                
+        if (!userId) {
+            return res.status(401).send({ message: "Invalid token" });
+        }
+
+        const setLogoutQuery = `UPDATE users SET is_login = 0 WHERE user_id = ?;`;
+
+        const result = await new Promise((resolve, reject) => {
+            db.query(setLogoutQuery, [userId], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results.affectedRows);
+                }
+            });
+        });
+
+        // if (result === 0) {
+        //     return res.status(400).send({
+        //         success: false,
+        //         message: "User logout failed",
+        //     });
+        // }
+
+        return res.status(200).send({
+            success: true,
+            message: "User logged out successfully",
+        });
+
+    } catch (error) {
+        console.log("Error in Logout User: ", error);
+        return res.status(500).send({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message
+        });
+    }
+};
+
+
+
+
+export {getExampleData, registerUser, loginUser, logoutUser}
