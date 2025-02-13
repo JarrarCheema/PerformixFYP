@@ -24,6 +24,7 @@ import { getAllStaffs } from "../controllers/userControllers/getAllStaffs.js";
 import { getSingleStaff } from "../controllers/userControllers/getSingleStaff.js";
 import { viewAllPerformanceMetrics } from "../controllers/userControllers/viewAllPerformanceMetric.js";
 import { viewDashboard } from "../controllers/employeeControllers/viewDashBoard.js";
+import { getActiveUsers } from "../controllers/allUserControllers/getActiveUsers.js";
 
 router.get('/', getExampleData);
 
@@ -91,5 +92,11 @@ router.post('/evaluate-employee', verifyToken, addEvaluation);
 router.put('/update-emp-evaluation/:evaluation_id', verifyToken, updateEvaluation);
 
 router.get('/get-emp-evaluation/:evaluation_id', verifyToken, getEmployeeEvaluation);
+
+
+
+
+// ALL USERS ROUTES
+router.get('/get-active-users', verifyToken, getActiveUsers);
 
 export default router;
