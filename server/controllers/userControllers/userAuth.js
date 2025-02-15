@@ -88,8 +88,8 @@ const registerUser = async (req, res) => {
         const hashedPassword = await hashPassword(password);
         console.log('Hashed Password:', hashedPassword);
 
-        // Generate a 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        // Generate a 4-digit OTP
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
         const pakistanOffset = 5 * 60 * 60 * 1000;
         const otpExpires = new Date(Date.now() + 3600000 + pakistanOffset)
             .toISOString()
