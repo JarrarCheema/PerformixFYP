@@ -1,4 +1,3 @@
-
 import jwt from 'jsonwebtoken';
 import db from '../../config/db.js'; 
 
@@ -7,6 +6,10 @@ export const verifyOTP = async (req, res) => {
         const { otp } = req.body;
         console.log("OTP: ", otp);
         
+        // Check if OTP is a valid 4-digit number
+        if (!/^[0-9]{4}$/.test(otp)) {
+            return res.status(400).send({ message: "Invalid OTP format. OTP must be a 4-digit number." });
+        }
 
         // Check if the Authorization header exists
         let token = req.header("Authorization");
@@ -22,13 +25,8 @@ export const verifyOTP = async (req, res) => {
             return res.status(401).send({ message: "Invalid token" });
         }
 
-        if (!otp) {
-            return res.status(400).send({ message: "OTP is required" });
-        }
-
         // Fetch the user by ID from the database
         const getUserQuery = `SELECT * FROM users WHERE user_id = ?;`;
-
         const user = await new Promise((resolve, reject) => {
             db.query(getUserQuery, [userId], (err, results) => {
                 if (err) {
@@ -50,7 +48,6 @@ export const verifyOTP = async (req, res) => {
 
         // Update the user record to nullify OTP and otpExpires
         const updateUserQuery = `UPDATE users SET otp = 0, otp_expires = NULL WHERE user_id = ?;`;
-
         await new Promise((resolve, reject) => {
             db.query(updateUserQuery, [userId], (err, results) => {
                 if (err) {
