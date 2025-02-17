@@ -169,103 +169,85 @@ Thank you!`
 
 const loginUser = async (req, res) => {
     try {
-        
-        let {email, password} = req.body;
+        let { email, password } = req.body;
 
-        if(!email || !password){
+        if (!email || !password) {
             return res.status(400).send({ message: "Email and Password required for Login" });
         }
 
-        const getUserQuery = `SELECT * FROM users WHERE (otp = 0 OR otp IS NULL) AND email = ?;`;
+        // Get user details from the database
+        const getUserQuery = `SELECT * FROM users WHERE (otp = 0 OR otp IS NULL) AND email = ? AND is_active = 1;`;
 
-        const userId = await new Promise((resolve, reject) => {
+        const user = await new Promise((resolve, reject) => {
             db.query(getUserQuery, [email], (err, results) => {
-                if(err){
-                    reject(err);
+                if (err) {
+                    return reject(err);
                 }
-                if(results.length > 0){
-                    resolve(results[0].user_id);
-                }
-                else{
-                    resolve(null);
-                }
+                resolve(results.length > 0 ? results[0] : null);
             });
         });
 
-        if(!userId){
+        if (!user) {
             return res.status(400).send({
                 success: false,
-                message: "User not registered or you do not have verified your account!"
+                message: "User not registered or you have not verified your account!",
             });
         }
 
-        const hashedPassword = await new Promise((resolve, reject) => {
-            db.query(getUserQuery, [email], (err, results) => {
-                if(err){
-                    reject(err);
-                }
-                if(results.length > 0){
-                    resolve(results[0].password);
-                }
-                else{
-                    resolve(null);
-                }
-            });
-        });
-     
+        // Compare entered password with hashed password
+        const isMatch = await comparePassword(password, user.password);
 
-        const isMatch = await comparePassword(password, hashedPassword);
-
-        if(!isMatch){
+        if (!isMatch) {
             return res.status(401).send({
                 success: false,
                 message: "Password is not correct",
             });
         }
 
-        const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        // Generate JWT Token
+        const token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-        // Make the user's is_login field set to (1)
-        const setIsLogin = `
-            UPDATE users SET is_login = 1 WHERE user_id = ?;
-        `;
-
-        const result = await new Promise((resolve, reject) => {
-            db.query(setIsLogin, [userId], (err, results) => {
-                if(err){
-                    reject(err);
+        // Update user's login status
+        const setIsLoginQuery = `UPDATE users SET is_login = 1 WHERE user_id = ?;`;
+        await new Promise((resolve, reject) => {
+            db.query(setIsLoginQuery, [user.user_id], (err, results) => {
+                if (err) {
+                    return reject(err);
                 }
-                else{
-                    resolve(results.affectedRows);
-                }
+                resolve(results.affectedRows);
             });
         });
 
-        // if(result == 0){
-        //     return res.status(400).send({
-        //         success: false,
-        //         message: "Cannot able to login the user"
-        //     });
-        // }
-
+        // Check if the user has created any organization
+        const checkOrganizationQuery = `SELECT * FROM organizations WHERE created_by = ?;`;
+        const anyOrganization = await new Promise((resolve, reject) => {
+            db.query(checkOrganizationQuery, [user.user_id], (err, results) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(results.length > 0); // Returns true if at least one organization exists
+            });
+        });
 
         return res.status(200).send({
             success: true,
-            message: "User Log In Successfully",
-            token: token
+            message: "User Logged In Successfully",
+            token: token,
+            anyOrganization: anyOrganization, // true if user has an organization, false otherwise
         });
 
     } catch (error) {
-        if(error){
-            console.log("Error in Login User: ", error);
-            res.status(500).send({
-                success: false,
-                message: "Internal Server Error",
-                error: error.message
-            });
-        }
+        console.error("Error in Login User:", error);
+        res.status(500).send({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message,
+        });
     }
-}
+};
+
+export default loginUser;
+
 
 
 const logoutUser = async (req, res) => {
