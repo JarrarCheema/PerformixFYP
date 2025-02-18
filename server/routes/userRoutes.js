@@ -25,6 +25,8 @@ import { getSingleStaff } from "../controllers/userControllers/getSingleStaff.js
 import { viewAllPerformanceMetrics } from "../controllers/userControllers/viewAllPerformanceMetric.js";
 import { viewDashboard } from "../controllers/employeeControllers/viewDashBoard.js";
 import { getActiveUsers } from "../controllers/allUserControllers/getActiveUsers.js";
+import { requestUpdatePassword } from "../controllers/allUserControllers/requestUpdatePassword.js";
+import { updatePassword } from "../controllers/allUserControllers/updatePassword.js";
 
 router.get('/', getExampleData);
 
@@ -41,6 +43,10 @@ router.post('/logout-user', verifyToken, logoutUser);
 router.post('/request-reset-password', requestResetPassword);
 
 router.post('/reset-password/:token', resetPassword);
+
+router.post('/request-update-password', requestUpdatePassword);
+
+router.post('/update-password/:token', updatePassword);
 
 router.put('/update-profile/:user_id', verifyToken, upload.single('profilePhoto'), editProfile);
 
