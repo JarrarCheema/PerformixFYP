@@ -14,7 +14,7 @@ router.put('/update-department/:dept_id', verifyToken, updateDepartment);
 
 router.get('/get-department/:dept_id', verifyToken, getDepartment);
 
-router.get('/get-departments', verifyToken, getAllDepartments);
+router.get('/get-departments/:organization_id', verifyToken, getAllDepartments);
 
 router.delete('/delete-department/:dept_id', verifyToken, deleteDepartment);
 

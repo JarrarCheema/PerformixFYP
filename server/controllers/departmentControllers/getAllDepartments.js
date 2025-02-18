@@ -2,7 +2,7 @@ import db from '../../config/db.js';
 
 export const getAllDepartments = async (req, res) => {
     try {
-        const { organization_id } = req.body;
+        const { organization_id } = req.params;
 
         if (!organization_id) {
             return res.status(400).send({
