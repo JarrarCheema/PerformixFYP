@@ -229,11 +229,51 @@ const loginUser = async (req, res) => {
             });
         });
 
+
+        // Check if the user is Admin
+        const checkIsAdmin = `SELECT * FROM users WHERE user_id = ? AND role_id = 1;`;
+        const isAdmin = await new Promise((resolve, reject) => {
+            db.query(checkIsAdmin, [user.user_id], (err, results) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(results.length > 0); // Returns true if at least one organization exists
+            });
+        });   
+
+        // Check if the user is Admin
+        const checkIsManager = `SELECT * FROM users WHERE user_id = ? AND role_id = 2;`;
+        const isManager = await new Promise((resolve, reject) => {
+            db.query(checkIsManager, [user.user_id], (err, results) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(results.length > 0); // Returns true if at least one organization exists
+            });
+        });   
+
+
+        // Check if the user is Admin
+        const checkIsStaff = `SELECT * FROM users WHERE user_id = ? AND role_id = 3;`;
+        const isStaff = await new Promise((resolve, reject) => {
+            db.query(checkIsStaff, [user.user_id], (err, results) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(results.length > 0); // Returns true if at least one organization exists
+            });
+        });   
+
+
         return res.status(200).send({
             success: true,
             message: "User Logged In Successfully",
             token: token,
             anyOrganization: anyOrganization, // true if user has an organization, false otherwise
+            isAdmin: isAdmin,
+            isManager: isManager,
+            isStaff: isStaff
+
         });
 
     } catch (error) {
