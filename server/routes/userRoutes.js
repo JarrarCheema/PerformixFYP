@@ -27,6 +27,7 @@ import { viewDashboard } from "../controllers/employeeControllers/viewDashBoard.
 import { getActiveUsers } from "../controllers/allUserControllers/getActiveUsers.js";
 import { requestUpdatePassword } from "../controllers/allUserControllers/requestUpdatePassword.js";
 import { updatePassword } from "../controllers/allUserControllers/updatePassword.js";
+import { getAllEmployees } from "../controllers/userControllers/getAllEmployees.js";
 
 router.get('/', getExampleData);
 
@@ -63,6 +64,10 @@ router.get('/get-single-LM/:lineManagerId', verifyToken, getSingleLineManager);
 router.get('/get-all-staffs', verifyToken, getAllStaffs);
 
 router.get('/get-single-staff/:staffId', verifyToken, getSingleStaff);
+
+
+// GET ALL EMPLOYEES (LM AND STAFFS)
+router.get('/get-employees', verifyToken, getAllEmployees);
 
 
 // VIEW ALL PERFORMANCE METRICS
