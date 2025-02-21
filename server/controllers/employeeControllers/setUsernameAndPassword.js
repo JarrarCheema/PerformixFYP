@@ -3,12 +3,12 @@ import db from '../../config/db.js';
 
 export const setCredentials = async (req, res) => {
     try {
-        const { userId, userName, password } = req.body;
+        const { verificationToken, userName, password } = req.body;
 
-        if (!userId || !userName || !password) {
+        if (!verificationToken || !userName || !password) {
             return res.status(400).json({
                 success: false,
-                message: "All fields are required",
+                message: "Verification Token, Username and Password fields are required",
             });
         }
 
@@ -35,11 +35,11 @@ export const setCredentials = async (req, res) => {
         }
 
         const checkUser = `
-            SELECT * FROM users WHERE user_id = ? AND user_name IS NULL AND password IS NULL;
+            SELECT * FROM users WHERE verification_token = ? AND user_name IS NULL AND password IS NULL;
         `
 
         const employee = await new Promise((resolve, reject) => {
-            db.query(checkUser, [userId], (err, results) => {
+            db.query(checkUser, [verificationToken], (err, results) => {
                 if(err){
                     reject(err);
                 }
@@ -52,7 +52,7 @@ export const setCredentials = async (req, res) => {
         if(!employee){
             return res.status(400).send({
                 success: false,
-                message: "User not exist with the given user id"
+                message: "Verification Token is not correct"
             });
         }
 
@@ -60,10 +60,10 @@ export const setCredentials = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         const updateCredentialsQuery = `
-            UPDATE users SET user_name = ?, password = ?, is_active = ? WHERE user_id = ? AND user_name IS NULL AND password IS NULL;
+            UPDATE users SET user_name = ?, password = ?, is_active = ?, verification_token = ? WHERE verification_token = ? AND user_name IS NULL AND password IS NULL;
         `;
         await new Promise((resolve, reject) => {
-            db.query(updateCredentialsQuery, [userName, hashedPassword, 1, userId], (err, results) => {
+            db.query(updateCredentialsQuery, [userName, hashedPassword, 1, null, verificationToken], (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             });

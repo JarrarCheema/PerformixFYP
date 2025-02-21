@@ -153,7 +153,7 @@ export const addEmployee = async (req, res) => {
             }
 
             // Send verification email
-            const verificationLink = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+            const verificationLink = `http://localhost:5173/employee-name-pass`;
             const transporter = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
@@ -166,8 +166,8 @@ export const addEmployee = async (req, res) => {
                 from: process.env.EMAIL_USER,
                 to: email,
                 subject: "Email Verification",
-                text: `Welcome to the system! Please verify your email by clicking the link: ${verificationLink}`,
-            };
+                html: `Welcome to Performix! <br>Your Verification Code: <b>${verificationToken}</b> <br>Link to set your username and password: ${verificationLink}`,
+            };            
 
             transporter.sendMail(mailOptions, (err, info) => {
                 if (err) {
