@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 export const getAllEmployees = async (req, res) => {
     try {
 
-        const {organization_id} = req.body;
+        const {organization_id} = req.params;
         let token = req.header("Authorization");
 
         if (!token) {

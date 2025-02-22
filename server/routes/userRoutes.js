@@ -67,7 +67,7 @@ router.get('/get-single-staff/:staffId', verifyToken, getSingleStaff);
 
 
 // GET ALL EMPLOYEES (LM AND STAFFS)
-router.get('/get-employees', verifyToken, getAllEmployees);
+router.get('/get-employees/:organization_id', verifyToken, getAllEmployees);
 
 
 // VIEW ALL PERFORMANCE METRICS
