@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 
 export const getAllEmployees = async (req, res) => {
     try {
+
+        const {organization_id} = req.body;
         let token = req.header("Authorization");
 
         if (!token) {
@@ -22,10 +24,17 @@ export const getAllEmployees = async (req, res) => {
             });
         }
 
+        if(!organization_id){
+            return res.status(400).send({
+                success: false,
+                message: "Organization Id is required"
+            });
+        }
+
         // Check if the user is an Admin with a selected organization
         const checkIfUserIsAdmin = `
-            SELECT selected_organization_id FROM users 
-            WHERE user_id = ? AND (created_by IS NULL OR created_by = 0) AND selected_organization_id IS NOT NULL;
+            SELECT * FROM users 
+            WHERE user_id = ? AND (created_by IS NULL OR created_by = 0);
         `;
 
         const admin = await new Promise((resolve, reject) => {
@@ -38,11 +47,11 @@ export const getAllEmployees = async (req, res) => {
         if (!admin) {
             return res.status(400).send({
                 success: false,
-                message: "Only an Admin with a selected Organization can view Employees"
+                message: "Only an Admin can get all employees of the organization"
             });
         }
 
-        const organizationId = admin.selected_organization_id;
+        const organizationId = organization_id;
 
         // Get all Employees (Line Managers & Staff)
         const getEmployees = `
