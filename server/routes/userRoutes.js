@@ -28,6 +28,7 @@ import { getActiveUsers } from "../controllers/allUserControllers/getActiveUsers
 import { requestUpdatePassword } from "../controllers/allUserControllers/requestUpdatePassword.js";
 import { updatePassword } from "../controllers/allUserControllers/updatePassword.js";
 import { getAllEmployees } from "../controllers/userControllers/getAllEmployees.js";
+import { deleteEmployee } from "../controllers/userControllers/deleteEmployee.js";
 
 router.get('/', getExampleData);
 
@@ -68,6 +69,8 @@ router.get('/get-single-staff/:staffId', verifyToken, getSingleStaff);
 
 // GET ALL EMPLOYEES (LM AND STAFFS)
 router.get('/get-employees/:organization_id', verifyToken, getAllEmployees);
+
+router.delete('/delete-employee/:employee_id', verifyToken, deleteEmployee);
 
 
 // VIEW ALL PERFORMANCE METRICS
