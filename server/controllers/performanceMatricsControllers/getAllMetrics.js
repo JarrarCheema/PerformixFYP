@@ -50,8 +50,8 @@ export const getAllMetrics = async (req , res) => {
             SELECT pm.metric_id, pm.metric_name, pm.description AS metric_description, 
             d.dept_id AS department_id, d.department_id, d.department_name, u.user_id, u.full_name AS LM_Name
             FROM performance_metrics pm 
-            JOIN metric_assignments ma ON pm.metric_id = ma.metric_id JOIN departments d 
-            ON ma.department_id = d.dept_id JOIN users u ON ma.line_manager_id = u.user_id WHERE pm.created_by = ?;
+            LEFT JOIN metric_assignments ma ON pm.metric_id = ma.metric_id LEFT JOIN departments d 
+            ON ma.department_id = d.dept_id LEFT JOIN users u ON ma.line_manager_id = u.user_id WHERE pm.created_by = ?;
         `;
 
         const metrics = await new Promise((resolve, reject) => {
