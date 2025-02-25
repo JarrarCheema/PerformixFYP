@@ -56,7 +56,7 @@ router.get('/get-user', verifyToken, getUser);
 
 
 // GET LINE MANAGERS
-router.get('/get-all-LMs', verifyToken, getAllLineManagers);
+router.get('/get-all-LMs/:organization_id', verifyToken, getAllLineManagers);
 
 router.get('/get-single-LM/:lineManagerId', verifyToken, getSingleLineManager);
 

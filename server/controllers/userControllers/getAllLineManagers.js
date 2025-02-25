@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken';
 
 export const getAllLineManagers = async (req, res) => {
     try {
+
+        const {organization_id} = req.params;
+
         // Check if the Authorization header exists
         let token = req.header("Authorization");
 
@@ -25,26 +28,26 @@ export const getAllLineManagers = async (req, res) => {
         }
 
         // Check if the user is an Admin with a selected organization
-        const checkIfUserIsAdmin = `
-            SELECT selected_organization_id FROM users 
-            WHERE user_id = ? AND (created_by IS NULL OR created_by = 0) AND selected_organization_id IS NOT NULL;
-        `;
+        // const checkIfUserIsAdmin = `
+        //     SELECT selected_organization_id FROM users 
+        //     WHERE user_id = ? AND (created_by IS NULL OR created_by = 0);
+        // `;
 
-        const admin = await new Promise((resolve, reject) => {
-            db.query(checkIfUserIsAdmin, [userId], (err, results) => {
-                if (err) reject(err);
-                else resolve(results[0]);
-            });
-        });
+        // const admin = await new Promise((resolve, reject) => {
+        //     db.query(checkIfUserIsAdmin, [userId], (err, results) => {
+        //         if (err) reject(err);
+        //         else resolve(results[0]);
+        //     });
+        // });
 
-        if (!admin) {
-            return res.status(400).send({
-                success: false,
-                message: "Only an Admin with a selected Organization can view Line Managers"
-            });
-        }
+        // if (!admin) {
+        //     return res.status(400).send({
+        //         success: false,
+        //         message: "Only an Admin with a selected Organization can view Line Managers"
+        //     });
+        // }
 
-        const organizationId = admin.selected_organization_id;
+        // const organization_id = admin.selected_organization_id;
 
         // Get all Line Managers with department and organization info
         const getLineManagers = `
@@ -57,13 +60,13 @@ export const getAllLineManagers = async (req, res) => {
                 d.department_id, 
                 d.department_name 
             FROM users u 
-            JOIN user_departments ud ON u.user_id = ud.user_id 
-            JOIN departments d ON ud.department_id = d.dept_id 
+            LEFT JOIN user_departments ud ON u.user_id = ud.user_id 
+            LEFT JOIN departments d ON ud.department_id = d.dept_id 
             WHERE u.role_id = 2 AND d.organization_id = ? AND u.is_active = 1 AND d.is_active = 1;
         `;
 
         const lineManagers = await new Promise((resolve, reject) => {
-            db.query(getLineManagers, [organizationId], (err, results) => {
+            db.query(getLineManagers, [organization_id], (err, results) => {
                 if (err) reject(err);
                 else resolve(results);
             });
@@ -85,9 +88,9 @@ export const getAllLineManagers = async (req, res) => {
                     mp.weightage, 
                     le.marks_obtained 
                 FROM line_manager_evaluations le
-                JOIN performance_metrics pm ON le.metric_id = pm.metric_id
-                JOIN performance_parameters pp ON le.parameter_id = pp.parameter_id
-                JOIN metric_parameters mp ON le.metric_id = mp.metric_id AND le.parameter_id = mp.parameter_id
+                LEFT JOIN performance_metrics pm ON le.metric_id = pm.metric_id
+                LEFT JOIN performance_parameters pp ON le.parameter_id = pp.parameter_id
+                LEFT JOIN metric_parameters mp ON le.metric_id = mp.metric_id AND le.parameter_id = mp.parameter_id
                 WHERE le.line_manager_id = ?;
             `;
 
