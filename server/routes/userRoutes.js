@@ -29,6 +29,7 @@ import { requestUpdatePassword } from "../controllers/allUserControllers/request
 import { updatePassword } from "../controllers/allUserControllers/updatePassword.js";
 import { getAllEmployees } from "../controllers/userControllers/getAllEmployees.js";
 import { deleteEmployee } from "../controllers/userControllers/deleteEmployee.js";
+import { viewAdminDashboard } from "../controllers/userControllers/viewAdminDashboard.js";
 
 router.get('/', getExampleData);
 
@@ -44,7 +45,7 @@ router.post('/logout-user', verifyToken, logoutUser);
 
 router.post('/request-reset-password', requestResetPassword);
 
-router.post('/reset-password/:token', resetPassword);
+router.post('/reset-password', verifyToken, resetPassword);
 
 router.post('/request-update-password', requestUpdatePassword);
 
@@ -98,6 +99,8 @@ router.post('/set-credentials', setCredentials);
 router.put('/set-pfp', verifyToken, upload.single('profilePhoto'), setProfilePicture);
 
 router.get('/view-dashboard', verifyToken, viewDashboard);
+
+router.get('/view-admin-dashboard', verifyToken, viewAdminDashboard);
 
 
 router.post('/evaluate-employee', verifyToken, addEvaluation);
