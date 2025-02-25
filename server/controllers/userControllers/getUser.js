@@ -27,12 +27,12 @@ export const getUser = async (req, res) => {
         }
 
 
-        const checkIfUserAdmin = `
-            SELECT * FROM users WHERE user_id = ? AND (created_by IS NULL OR created_by = 0);
+        const checkIfUserExist = `
+            SELECT * FROM users WHERE user_id = ? AND is_active = 1;
         `;
 
-        const isAdmin = await new Promise((resolve, reject) => {
-            db.query(checkIfUserAdmin, [userId], (err, results) => {
+        const isUser = await new Promise((resolve, reject) => {
+            db.query(checkIfUserExist, [userId], (err, results) => {
                 if(err){
                     reject(err);
                 }
@@ -42,17 +42,21 @@ export const getUser = async (req, res) => {
             });
         });
 
-        if(!isAdmin){
+        if(!isUser){
             return res.status(400).send({
                 success: false,
-                message: "You are not an admin"
+                message: "Not found your data"
             });
         }
 
 
         const getUserQuery = `
-            SELECT * FROM users u JOIN organizations o ON u.selected_organization_id = o.organization_id 
-            WHERE u.user_id = ? AND u.is_active = 1 AND o.is_active = 1 AND (u.created_by IS NULL OR u.created_by = 0);
+            SELECT u.user_id, u.user_name, u.full_name, u.phone, u.profile_photo, 
+            u.role_id, u.designation, o.organization_id, o.organization_name
+            FROM users u LEFT JOIN user_departments ud ON u.user_id = ud.user_id
+            LEFT JOIN departments d ON ud.department_id = d.dept_id
+            LEFT JOIN organizations o ON d.organization_id = o.organization_id WHERE u.user_id = ?
+            GROUP BY o.organization_id;
         `;
         
         const user = await new Promise((resolve, reject) => {
@@ -76,7 +80,7 @@ export const getUser = async (req, res) => {
         return res.status(200).send({
             success: true,
             message: "Successfully fetched the user",
-            admin: user
+            user: user
         });
 
     } catch (error) {
