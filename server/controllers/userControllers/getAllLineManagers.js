@@ -52,17 +52,18 @@ export const getAllLineManagers = async (req, res) => {
         // Get all Line Managers with department and organization info
         const getLineManagers = `
             SELECT 
-                u.user_id, 
-                u.user_name,
-                u.full_name, 
-                u.designation,
-                d.dept_id,
-                d.department_id, 
-                d.department_name 
-            FROM users u 
-            LEFT JOIN user_departments ud ON u.user_id = ud.user_id 
-            LEFT JOIN departments d ON ud.department_id = d.dept_id 
-            WHERE u.role_id = 2 AND d.organization_id = ? AND u.is_active = 1 AND d.is_active = 1;
+    u.user_id, 
+    u.user_name,
+    u.full_name, 
+    u.designation,
+    GROUP_CONCAT(DISTINCT d.dept_id) AS dept_ids,
+    GROUP_CONCAT(DISTINCT d.department_id) AS department_ids,
+    GROUP_CONCAT(DISTINCT d.department_name) AS department_names
+FROM users u 
+LEFT JOIN user_departments ud ON u.user_id = ud.user_id 
+LEFT JOIN departments d ON ud.department_id = d.dept_id 
+WHERE u.role_id = 2 AND d.organization_id = ? AND u.is_active = 1 AND d.is_active = 1
+GROUP BY u.user_id, u.user_name, u.full_name, u.designation;
         `;
 
         const lineManagers = await new Promise((resolve, reject) => {
@@ -106,11 +107,12 @@ export const getAllLineManagers = async (req, res) => {
                 user_name: lm.user_name,
                 full_name: lm.full_name,
                 designation: lm.designation,
-                dept_id: lm.dept_id,
-                department_id: lm.department_id,
-                department: lm.department_name,
+                dept_ids: lm.dept_ids ? lm.dept_ids.split(',') : [],
+                department_ids: lm.department_ids ? lm.department_ids.split(',') : [],
+                departments: lm.department_names ? lm.department_names.split(',') : [],
                 performance_status: performanceData.length ? performanceData : "No evaluations available"
             };
+            
         }));
 
         return res.status(200).send({

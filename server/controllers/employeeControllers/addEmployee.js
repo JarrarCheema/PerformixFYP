@@ -23,7 +23,7 @@ export const addEmployee = async (req, res) => {
                 });
             }
 
-            if(role_id === '2' && designation !== 'Line Manager'){
+            if(role_id === '2' && (designation !== 'Line Manager' || designation !== 'line manager')){
                 return res.status(400).send({
                     success: false,
                     message: "Role-Id [2] must only be assign to Line Manager"
