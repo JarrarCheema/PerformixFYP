@@ -2,8 +2,13 @@ import jwt from "jsonwebtoken";
 import db from "../config/db.js"
 
 export const verifyToken = async (req, res, next) => {
+    console.log("Verifying Token...");
+    
     try {
         let token = req.header("Authorization");
+
+        console.log("Token: ", token);
+        
         if (!token) {  
             return res.status(401).json({
                 success: false,

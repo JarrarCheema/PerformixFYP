@@ -272,7 +272,8 @@ const loginUser = async (req, res) => {
             anyOrganization: anyOrganization, // true if user has an organization, false otherwise
             isAdmin: isAdmin,
             isManager: isManager,
-            isStaff: isStaff
+            isStaff: isStaff,
+            userId: user.user_id
 
         });
 

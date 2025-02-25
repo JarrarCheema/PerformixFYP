@@ -7,6 +7,7 @@ export const assignMetric = async (req , res) => {
         
         const token = req.header("Authorization");
         const {metric_id, line_manager_id, department_id} = req.body;
+console.log("metric_id: ", metric_id, "line_manager_id: ", line_manager_id, "department_id: ", department_id);
 
         if(!metric_id || !line_manager_id || !department_id){
             return res.status(400).send({
@@ -39,6 +40,7 @@ export const assignMetric = async (req , res) => {
         const checkMetricExist = `
             SELECT * FROM performance_metrics WHERE metric_id = ? AND is_active = 1;
         `;
+console.log("checkMetricExist: ", checkMetricExist);
 
         const metricExist = await new Promise((resolve, reject) => {
             db.query(checkMetricExist, [metric_id], (err, results) => {

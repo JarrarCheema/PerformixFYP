@@ -7,6 +7,7 @@ export const resetPassword = async (req, res) => {
 
         let token = req.header('Authorization');
         const { oldPassword, newPassword } = req.body;
+console.log(token , oldPassword , newPassword);
 
         if(!token){
             return res.status(400).send({
