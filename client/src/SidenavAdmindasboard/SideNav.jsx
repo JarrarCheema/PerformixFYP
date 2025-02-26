@@ -122,18 +122,18 @@ function SideNav(props) {
       </div>
 
       {/* Select input */}
-      <div className="mb-4 mx-2">
+      {/* <div className="mb-4 mx-2">
         <Select id="organization" required className="w-full">
           <option value="">Select an organization</option>
           <option value="Zapta">Zapta</option>
           <option value="Vsynch">Vsynch</option>
           <option value="Organix">Organix</option>
-          {/* Add more organizations dynamically as needed */}
+
         </Select>
-      </div>
+      </div> */}
 
       {/* Search Input */}
-      <form class="max-w-md mx-2">
+      {/* <form class="max-w-md mx-2">
         <div class="relative">
           <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
             <svg
@@ -160,7 +160,7 @@ function SideNav(props) {
             required
           />
         </div>
-      </form>
+      </form> */}
 
       {/* Menu List */}
       <List

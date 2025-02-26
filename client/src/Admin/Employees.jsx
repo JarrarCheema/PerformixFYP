@@ -5,8 +5,6 @@ import AddEmployeeModal from "../Modal/AddEmployeeModal";
 import axios from "axios";
 import { FaHouseChimneyMedical } from "react-icons/fa6";
 import AddEvaluationModal from "../Modal/AddEvaluationModal";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { FaRegEye } from "react-icons/fa";
 import ViewEvaluationModal from "../Modal/ViewEvaluationModal";
 
@@ -19,24 +17,22 @@ const Employees = () => {
   const [isAddingEmployee, setIsAddingEmployee] = useState(false);
   const [isDepartmentDropdownVisible, setIsDepartmentDropdownVisible] = useState(false);
   const [isEvaluationModalOpen, setEvaluationModalOpen] = useState(false);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showEvaluation, setShowEvaluation] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [employeesPerPage] = useState(10);
 
   // Fetch Employees from API
   const fetchEmployees = async () => {
     const token = localStorage.getItem("token");
-    const organizationId = localStorage.getItem("selectedOrganizationId");
+    const organization_id = localStorage.getItem("selectedOrganizationId");
 
-    if (!token || !organizationId) {
+    if (!token || !organization_id) {
       console.error("No token or organizationId found in localStorage.");
       return;
     }
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/user/get-employees/${organizationId}`,
+        `http://localhost:8080/user/get-all-LMs/${organization_id}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -44,8 +40,10 @@ const Employees = () => {
         }
       );
 
+      console.log('Data:', response.data);
+
       if (response.data.success) {
-        setEmployees(response.data.Employees);
+        setEmployees(response.data.Line_Managers || []);
       } else {
         console.error("Failed to fetch employees:", response.data.message);
       }
@@ -53,6 +51,29 @@ const Employees = () => {
       console.error("Error fetching employees:", error);
     }
   };
+// Handle opening the View Evaluation Modal
+const handleViewEvaluation = (employee) => {
+  setSelectedEmployee(employee);
+  setShowEvaluation(true);
+};
+
+// Handle opening the Add Evaluation Modal
+const handleAddEvaluation = (employee) => {
+  setSelectedEmployee(employee);
+  setEvaluationModalOpen(true);
+};
+
+// Handle closing the View Evaluation Modal
+const closeViewEvaluation = () => {
+  setSelectedEmployee(null);
+  setShowEvaluation(false);
+};
+
+// Handle closing the Add Evaluation Modal
+const closeAddEvaluation = () => {
+  setSelectedEmployee(null);
+  setEvaluationModalOpen(false);
+};
 
   // Fetch Departments from API
   const fetchDepartments = async () => {
@@ -75,7 +96,7 @@ const Employees = () => {
       );
 
       if (response.data.success) {
-        setDepartments(response.data.departments);
+        setDepartments(response.data.departments || []);
       } else {
         console.error("Failed to fetch departments:", response.data.message);
       }
@@ -84,54 +105,22 @@ const Employees = () => {
     }
   };
 
-  // Add Employee API Call
-  const addEmployee = async (employeeData) => {
-    const token = localStorage.getItem("token");
-    const organizationId = localStorage.getItem("selectedOrganizationId");
-
-    try {
-      const response = await axios.post(
-        `http://localhost:8080/user/add-employee`,
-        { 
-          ...employeeData, 
-          organization_id: organizationId,
-          department_id: selectedDepartment 
-        },
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        setModalOpen(false);
-        setSelectedDepartment(null);
-        fetchEmployees();
-      } else {
-        console.error("Failed to add employee:", response.data.message);
-      }
-    } catch (error) {
-      console.error("Error adding employee:", error);
-    }
-  };
-
   useEffect(() => {
     fetchEmployees();
     fetchDepartments();
   }, []);
 
-  // Column definitions with conditional Evaluation column
+  // Column definitions
   const columns = [
     { header: "Username", accessor: "user_name", key: "user_name" },
     { header: "Full Name", accessor: "full_name", key: "full_name" },
     { header: "Designation", accessor: "designation", key: "designation" },
-    { header: "Department", accessor: "department", key: "department" },
+    { header: "Department", accessor: "departments", key: "departments" },
     {
       header: "Evaluation",
       accessor: "evaluation",
       key: "evaluation",
-      condition: (emp) => emp.designation === "Line Manager"
+      condition: () => true
     },
     { header: "Action", accessor: "action", isAction: true, key: "action" },
   ];
@@ -144,25 +133,19 @@ const Employees = () => {
   };
 
   // Filtered data and conditional Evaluation column
-  const filteredData = employees
-    .filter((emp) =>
-      emp.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.user_name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .map((emp) => ({
-      ...emp,
-      evaluation:
-        emp.designation === "Line Manager" ? emp.evaluation || <div className="flex space-x-2"><FaHouseChimneyMedical className="text-red-500 size-6 cursor-pointer"  onClick={() => {
-          setSelectedEmployeeId(emp.user_id);
-          setEvaluationModalOpen(true);
-        }}/>
-        <FaRegEye className="text-gray-500 size-6 cursor-pointer" onClick={() => {setShowEvaluation(true);
-setSelectedEmployeeId(emp.user_id);
-         } }/></div> : <FaRegEye className="text-gray-500 size-6 cursor-pointer" onClick={()=>{
-          setShowEvaluation(true);
-          setSelectedEmployeeId(emp.user_id);
-         }}/>,
-    }));
+  const filteredData = employees.map((emp) => ({
+    ...emp,
+    evaluation: (
+      <div className="flex space-x-2">
+      
+        <FaRegEye
+          className="text-gray-500 size-6 cursor-pointer"
+          onClick={() => handleViewEvaluation(emp)}
+        />
+      </div>
+    ),
+    
+  }));
 
   return (
     <div className="bg-white shadow rounded-lg p-6">
@@ -217,37 +200,24 @@ setSelectedEmployeeId(emp.user_id);
       )}
 
       <PaginatedTable
-        data={filteredData}
-        columns={columns.filter(col => 
-          !col.condition || employees.some(emp => col.condition(emp))
-        )}
+        data={filteredData || []}
+        columns={columns}
         row={10}
       />
 
       <AddEmployeeModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setIsAddingEmployee(false);
-          setIsDepartmentDropdownVisible(false);
-          setSelectedDepartment(null);
-        }}
+        onClose={() => setModalOpen(false)}
         selectedDepartment={selectedDepartment}  
-        onAddEmployee={addEmployee}
       />
 
-<AddEvaluationModal
-  isOpen={isEvaluationModalOpen}
-  onClose={() => setEvaluationModalOpen(false)}
-  employeeId={selectedEmployeeId}
-  onEvaluationAdded={fetchEmployees}
-/>
+     
 
-<ViewEvaluationModal
-  isOpen={showEvaluation}
-  onClose={() => setShowEvaluation(false)}
-  employeeId={selectedEmployeeId}
-/>
+      <ViewEvaluationModal
+        isOpen={showEvaluation}
+        onClose={() => setShowEvaluation(false)}
+        employeeData={selectedEmployee}
+      />
     </div>
   );
 };
