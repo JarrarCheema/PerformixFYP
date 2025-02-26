@@ -1,18 +1,18 @@
-import db from '../../config/db.js';
-import jwt from 'jsonwebtoken';
+import db from "../../config/db.js";
+import jwt from "jsonwebtoken";
 
 export const editProfile = async (req, res) => {
     try {
         const { user_id } = req.params;
-        const { fullname, username, phone, organization_name, address } = req.body;
+        const { fullname, username, phone } = req.body;
         const profilePhotoPath = req.file ? req.file.path : null;
 
         // Check if the Authorization header exists
         let token = req.header("Authorization");
         if (!token) {
-            return res.status(401).send({ 
+            return res.status(401).send({
                 success: false,
-                message: "Authorization token is required" 
+                message: "Authorization token is required"
             });
         }
 
@@ -21,9 +21,9 @@ export const editProfile = async (req, res) => {
         const tokenUserId = decoded.id;
 
         if (!tokenUserId) {
-            return res.status(401).send({ 
+            return res.status(401).send({
                 success: false,
-                message: "Invalid token" 
+                message: "Invalid token"
             });
         }
 
@@ -51,17 +51,7 @@ export const editProfile = async (req, res) => {
             });
         }
 
-        // Fetch selected organization
-        const organizationId = user.selected_organization_id;
-        if (!organizationId) {
-            return res.status(400).send({
-                success: false,
-                message: "No organization selected. Please select an organization first.",
-            });
-        }
-
         let userUpdated = false;
-        let orgUpdated = false;
 
         // Prepare dynamic query for updating USER details
         const userUpdateFields = [];
@@ -104,43 +94,10 @@ export const editProfile = async (req, res) => {
             }
         }
 
-        // Prepare dynamic query for updating ORGANIZATION details
-        const orgUpdateFields = [];
-        const orgUpdateValues = [];
-
-        if (organization_name) {
-            orgUpdateFields.push("organization_name = ?");
-            orgUpdateValues.push(organization_name);
-        }
-        if (address) {
-            orgUpdateFields.push("address = ?");
-            orgUpdateValues.push(address);
-        }
-
-        if (orgUpdateFields.length > 0) {
-            const orgUpdateQuery = `
-                UPDATE organizations
-                SET ${orgUpdateFields.join(", ")}
-                WHERE organization_id = ?;
-            `;
-            orgUpdateValues.push(organizationId);
-
-            const orgResult = await new Promise((resolve, reject) => {
-                db.query(orgUpdateQuery, orgUpdateValues, (err, results) => {
-                    if (err) reject(err);
-                    else resolve(results);
-                });
-            });
-
-            if (orgResult.affectedRows > 0) {
-                orgUpdated = true;
-            }
-        }
-
-        if (userUpdated || orgUpdated) {
+        if (userUpdated) {
             return res.status(200).send({
                 success: true,
-                message: "Admin profile and organization details updated successfully",
+                message: "Profile updated successfully",
             });
         } else {
             return res.status(400).send({
@@ -150,7 +107,7 @@ export const editProfile = async (req, res) => {
         }
 
     } catch (error) {
-        console.error("Error while updating admin profile: ", error);
+        console.error("Error while updating profile: ", error);
         return res.status(500).send({
             success: false,
             message: "Internal server error",
