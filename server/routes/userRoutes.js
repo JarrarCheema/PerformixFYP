@@ -61,6 +61,8 @@ router.get('/view-report/:organization_id', verifyToken, viewReport);
 
 router.get('/view-leaderboard/:organization_id', verifyToken, viewLeaderboard);
 
+router.get('/view-admin-dashboard/:organization_id', verifyToken, viewAdminDashboard);
+
 
 // GET LINE MANAGERS
 router.get('/get-all-LMs/:organization_id', verifyToken, getAllLineManagers);
@@ -105,8 +107,6 @@ router.post('/set-credentials', setCredentials);
 router.put('/set-pfp', verifyToken, upload.single('profilePhoto'), setProfilePicture);
 
 router.get('/view-dashboard', verifyToken, viewDashboard);
-
-router.get('/view-admin-dashboard', verifyToken, viewAdminDashboard);
 
 
 router.post('/evaluate-employee', verifyToken, addEvaluation);

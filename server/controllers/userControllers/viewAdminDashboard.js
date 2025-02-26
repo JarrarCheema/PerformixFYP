@@ -1,9 +1,11 @@
-import db from '../../config/db.js';
-import jwt from 'jsonwebtoken';
+import db from "../../config/db.js";
+import jwt from "jsonwebtoken";
 
 export const viewAdminDashboard = async (req, res) => {
     try {
-        let token = req.header('Authorization');
+        const { organization_id } = req.params;
+        let token = req.header("Authorization");
+
         if (!token) {
             return res.status(400).json({ success: false, message: "Token is missing" });
         }
@@ -14,67 +16,111 @@ export const viewAdminDashboard = async (req, res) => {
             return res.status(401).json({ success: false, message: "Invalid token" });
         }
 
-        const [orgDeptDataResult] = await db.query(`
-            SELECT u.user_id, u.user_name, u.full_name, d.dept_id, d.department_name, 
-                   o.organization_id, o.organization_Name 
-            FROM users u 
-            JOIN user_departments ud ON u.user_id = ud.user_id 
-            JOIN departments d ON ud.department_id = d.dept_id 
-            JOIN organizations o ON d.organization_id = o.organization_id 
-            WHERE u.user_id = ?;
-        `, [user_id]);
-
-        const orgDeptData = orgDeptDataResult.length ? orgDeptDataResult[0] : null;
-
-        if (!orgDeptData) {
-            return res.status(400).json({ success: false, message: "Data not found" });
+        if (!organization_id) {
+            return res.status(400).send({
+                success: false,
+                message: "Organization Id is required",
+            });
         }
 
-        const [departmentCountResult] = await db.query(`
-            SELECT COUNT(*) AS department_count FROM departments 
-            WHERE organization_id = ? AND is_active = 1;
-        `, [orgDeptData.organization_id]);
+        // Step 1: Get Total Departments in the Organization
+        const totalDepartmentsQuery = `
+            SELECT COUNT(*) AS total_departments 
+            FROM departments 
+            WHERE organization_id = ?;
+        `;
+        const totalDepartments = await new Promise((resolve, reject) => {
+            db.query(totalDepartmentsQuery, [organization_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results[0]?.total_departments || 0);
+            });
+        });
 
-        const departmentCount = departmentCountResult.length ? departmentCountResult[0].department_count : 0;
+        // Step 2: Get Total Employees (excluding role_id = 1)
+        const totalEmployeesQuery = `
+            SELECT COUNT(*) AS total_employees 
+            FROM users u
+            JOIN user_departments ud ON u.user_id = ud.user_id
+            JOIN departments d ON ud.department_id = d.dept_id
+            WHERE d.organization_id = ? AND (u.role_id = 2 OR u.role_id = 3);
+        `;
+        const totalEmployees = await new Promise((resolve, reject) => {
+            db.query(totalEmployeesQuery, [organization_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results[0]?.total_employees || 0);
+            });
+        });
 
-        const [employeeCountResult] = await db.query(`
-            SELECT COUNT(user_id) AS employee_count FROM user_departments 
-            WHERE department_id = ? GROUP BY department_id;
-        `, [orgDeptData.dept_id]);
+        // Step 3: Get Total Active Employees (users with is_login = 1)
+        const totalActiveEmployeesQuery = `
+            SELECT COUNT(*) AS total_active_employees
+            FROM users u
+            JOIN user_departments ud ON u.user_id = ud.user_id
+            JOIN departments d ON ud.department_id = d.dept_id
+            WHERE d.organization_id = ? AND (u.role_id = 2 OR u.role_id = 3) AND u.is_login = 1;
+        `;
+        const totalActiveEmployees = await new Promise((resolve, reject) => {
+            db.query(totalActiveEmployeesQuery, [organization_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results[0]?.total_active_employees || 0);
+            });
+        });
 
-        const employeeCount = employeeCountResult.length ? employeeCountResult[0].employee_count : 0;
+        // Step 4: Get Total Performance Scores Per Department
+        const departmentScoresQuery = `
+            SELECT d.dept_id, d.department_name, 
+                COALESCE(SUM(e.marks_obtained), 0) AS total_performance_score
+            FROM departments d
+            LEFT JOIN user_departments ud ON d.dept_id = ud.department_id
+            LEFT JOIN users u ON ud.user_id = u.user_id AND (u.role_id = 2 OR u.role_id = 3)
+            LEFT JOIN evaluations e ON u.user_id = e.employee_id
+            WHERE d.organization_id = ?
+            GROUP BY d.dept_id, d.department_name;
+        `;
+        const departmentScores = await new Promise((resolve, reject) => {
+            db.query(departmentScoresQuery, [organization_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        });
 
-        const employeesDataResult = await db.query(`
-            SELECT u.user_id, u.full_name, u.user_name, u.phone, u.email, u.designation, u.profile_photo 
-            FROM users u 
-            JOIN user_departments ud ON u.user_id = ud.user_id 
-            WHERE ud.department_id = ? AND u.role_id IN (2, 3) AND u.is_active = 1;
-        `, [orgDeptData.dept_id]);
-
-        const employeesData = employeesDataResult.length ? employeesDataResult : [];
-
-        const performanceScoresResult = await db.query(`
-            SELECT d.department_name, SUM(e.marks_obtained) AS performance_score 
-            FROM evaluations e 
-            JOIN users u ON e.employee_id = u.user_id 
-            JOIN user_departments ud ON u.user_id = ud.user_id 
-            JOIN departments d ON ud.department_id = d.dept_id 
-            WHERE d.organization_id = ? 
-            GROUP BY d.department_name;
-        `, [orgDeptData.organization_id]);
-
-        const performanceScores = performanceScoresResult.length ? performanceScoresResult : [];
+        // Step 5: Get All Employees in the Organization
+        const employeesDataQuery = `
+            SELECT u.user_id, u.full_name, u.email, u.role_id, u.is_login, 
+                   d.dept_id, d.department_name, 
+                   COALESCE(e.marks_obtained, 0) AS performance_score
+            FROM users u
+            JOIN user_departments ud ON u.user_id = ud.user_id
+            JOIN departments d ON ud.department_id = d.dept_id
+            LEFT JOIN evaluations e ON u.user_id = e.employee_id
+            WHERE d.organization_id = ? AND (u.role_id = 2 OR u.role_id = 3)
+            ORDER BY d.department_name, u.full_name;
+        `;
+        const employeesData = await new Promise((resolve, reject) => {
+            db.query(employeesDataQuery, [organization_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        });
 
         return res.status(200).json({
             success: true,
-            message: "Dashboard Data fetched successfully",
-            total_departments: departmentCount,
-            total_employees: employeeCount,
-            employees_data: employeesData,
-            performance_scores_by_department: performanceScores
+            message: "Admin dashboard data fetched successfully",
+            data: {
+                total_departments: totalDepartments,
+                total_employees: totalEmployees,
+                total_active_employees: totalActiveEmployees,
+                performance_data: departmentScores,
+                employees_data: employeesData
+            }
         });
+
     } catch (error) {
-        console.error("Error fetching Admin Dashboard information:", error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Error fetching admin dashboard:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error.message,
+        });
     }
 };
