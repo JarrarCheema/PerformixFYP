@@ -75,7 +75,7 @@ function SideNav(props) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
     navigate("/login");
   };
   const handleProfile = () => {

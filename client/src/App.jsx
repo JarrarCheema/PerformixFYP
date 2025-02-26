@@ -7,8 +7,8 @@ import NewPassword from './Auth/NewPassword';
 import SelectOrganization from './Auth/SelectOrganization';
 import ForgetPassword from './Auth/ForgetPassword';
 import LandingPage from './LandingPage/Landingpage';
-import AdminDashboardSideNav from './SidenavAdmindasboard/Dashboard'; // Corrected name
-import AdminDashboard from './Admin/Dashbaord'; // Corrected name
+import AdminDashboardSideNav from './SidenavAdmindasboard/Dashboard'; 
+import AdminDashboard from './Admin/Dashbaord';
 import Employees from './Admin/Employees';
 import OrgDetails from './Admin/OrgDetails';
 import Departments from './Admin/Departments';
@@ -36,6 +36,8 @@ import EmployeeLeaderBoard from './Employee/LeaderBoard';
 import CreateOrganiztaion from './Auth/CreateOrganiztion';
 import EmployeeNamePass from './Auth/EmployeeNamePass';
 
+import PrivateRoute from './util/PrivateRoute'; // Import PrivateRoute
+
 function App() {
   return (
     <Router>
@@ -48,12 +50,17 @@ function App() {
         <Route path="/new-password" element={<NewPassword />} />
         <Route path="/select-organization" element={<SelectOrganization />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
-        {/* <Route path="/notification" element={<Notification />} /> */}
-        <Route path='/create-organization' element={<CreateOrganiztaion/>}/>
+        <Route path='/create-organization' element={<CreateOrganiztaion />} />
         <Route path='/employee-name-pass' element={<EmployeeNamePass />} />
 
         {/* Admin Dashboard Routes */}
-        <Route element={<AdminDashboardSideNav />}>
+        <Route 
+          element={
+            <PrivateRoute>
+              <AdminDashboardSideNav />
+            </PrivateRoute>
+          }
+        >
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/employees" element={<Employees />} />
           <Route path="/admin/orgdetails" element={<OrgDetails />} />
@@ -63,32 +70,44 @@ function App() {
           <Route path="/admin/notification" element={<Notification />} />
           <Route path="/admin/setting" element={<Settings />} />
           <Route path="/admin/leaderboard" element={<LeaderBoard />} />
-          <Route path='/admin/report' element={<Report/>}/>
+          <Route path='/admin/report' element={<Report />} />
           <Route path="/admin/stafffeedback/:id" element={<DetailsStaffFeedback />} />
         </Route>
 
-        <Route element={<SideMangerdashboard/>}>
-        <Route path='/manger/dashboard' element={<MangerDashboard />} />
-        <Route path='/manger/evaluation' element={<Evaluation />} />
-        <Route path='/manger/departments' element={<Department />} />
-        <Route path='/manger/matrix' element={<  Matrix_Information />} />
-        <Route path='/manger/team' element={<Team />} />
-        <Route path='/manger/feedback' element={<Feedback />} />
-        <Route path='/manger/leaderboard' element={<LeaderBoard />} />
-        <Route path="/manger/setting" element={<Settings />} />
-        <Route path='/manger/report' element={<ReportManager />} />
-
+        {/* Manager Dashboard Routes */}
+        <Route 
+          element={
+            <PrivateRoute>
+              <SideMangerdashboard />
+            </PrivateRoute>
+          }
+        >
+          <Route path='/manger/dashboard' element={<MangerDashboard />} />
+          <Route path='/manger/evaluation' element={<Evaluation />} />
+          <Route path='/manger/departments' element={<Department />} />
+          <Route path='/manger/matrix' element={<Matrix_Information />} />
+          <Route path='/manger/team' element={<Team />} />
+          <Route path='/manger/feedback' element={<Feedback />} />
+          <Route path='/manger/leaderboard' element={<LeaderBoard />} />
+          <Route path="/manger/setting" element={<Settings />} />
+          <Route path='/manger/report' element={<ReportManager />} />
         </Route>
-        <Route element={<EmployeeDashboardSideNav/>}>
-        <Route path='/employee/dashboard' element={<EmployeeDashBoard />} />
-        <Route path='/employee/report' element={<ReportEmployee />} />
-        <Route path='/employee/goal' element={<Goal />} />
-        <Route path='/employee/feedback' element={<FeedBack />} />
-        <Route path="/employee/setting" element={<Settings />} />
-        <Route path='/employee/leaderboard' element={<EmployeeLeaderBoard />} />
 
+        {/* Employee Dashboard Routes */}
+        <Route 
+          element={
+            <PrivateRoute>
+              <EmployeeDashboardSideNav />
+            </PrivateRoute>
+          }
+        >
+          <Route path='/employee/dashboard' element={<EmployeeDashBoard />} />
+          <Route path='/employee/report' element={<ReportEmployee />} />
+          <Route path='/employee/goal' element={<Goal />} />
+          <Route path='/employee/feedback' element={<FeedBack />} />
+          <Route path="/employee/setting" element={<Settings />} />
+          <Route path='/employee/leaderboard' element={<EmployeeLeaderBoard />} />
         </Route>
-        
       </Routes>
     </Router>
   ); 

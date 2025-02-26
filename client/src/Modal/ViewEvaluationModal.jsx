@@ -9,8 +9,13 @@ const ViewEvaluationModal = ({ isOpen, onClose, employeeData }) => {
   const [selectedParameter, setSelectedParameter] = useState(null);
 
   // Handle opening the AddEvaluationModal
-  const handleAddEvaluation = (param) => {
-    setSelectedParameter(param);
+  const handleAddEvaluation = (metric, param) => {
+    // Pass both metric_id and parameter details
+    setSelectedParameter({
+      metric_id: metric.metric_id,
+      parameter_id: param.parameter_id,
+      parameter_name: param.parameter_name
+    });
     setEvaluationModalOpen(true);
   };
 
@@ -34,10 +39,10 @@ const ViewEvaluationModal = ({ isOpen, onClose, employeeData }) => {
                             <span>{param.parameter_name || "Unnamed Parameter"}</span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span>{param.weightage  || param.evaluation || 0}%</span>
+                            <span>{param.weightage || param.evaluation || 0}%</span>
                             <FaPlusCircle
-                              className="text-blue-500 size-4 cursor-pointer"
-                              onClick={() => handleAddEvaluation(param)}
+                              className="text-blue-500 size-6 cursor-pointer"
+                              onClick={() => handleAddEvaluation(metric, param)}
                               title="Add Evaluation"
                             />
                           </div>
