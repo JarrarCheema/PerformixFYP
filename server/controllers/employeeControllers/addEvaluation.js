@@ -35,6 +35,33 @@ export const addEvaluation = async (req , res) => {
             });
         }
 
+
+        // THIS IS THE VALIDATION TO CHECK IF THE EMPLOYEE GIVEN IS PRESENT INSIDE THAT DEPARTMENT WHOSE METRIC LINE MANAGER IS EVALUATING AGAISNT THAT EMPLOYEE
+        const checkIfGivenEmployeeInDept = `
+            SELECT * FROM users u JOIN user_departments ud ON u.user_id = ud.user_id
+            JOIN departments d ON ud.department_id = d.dept_id
+            JOIN metric_assignments ma ON d.dept_id = ma.department_id WHERE u.user_id = ?;
+        `;
+
+        const isExist = await new Promise((resolve, reject) => {
+            db.query(checkIfGivenEmployeeInDept, [employee_id], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results[0]);
+                }
+            });
+        });
+
+
+        if(!isExist){
+            return res.status(400).send({
+                success: false,
+                message: "Given employee is not present in the department whose performance metric you are giving"
+            });
+        }
+
         const getLineManager = `
             SELECT user_id from users WHERE user_id = ? AND role_id = 2 AND is_active = 1;
         `;

@@ -32,6 +32,7 @@ import { deleteEmployee } from "../controllers/userControllers/deleteEmployee.js
 import { viewAdminDashboard } from "../controllers/userControllers/viewAdminDashboard.js";
 import { viewReport } from "../controllers/leaderboardControllers/viewReport.js";
 import { viewLeaderboard } from "../controllers/leaderboardControllers/viewLeaderboard.js";
+import { addLMInDepartment } from "../controllers/userControllers/addLMInDepartment.js";
 
 router.get('/', getExampleData);
 
@@ -62,6 +63,8 @@ router.get('/view-report/:organization_id', verifyToken, viewReport);
 router.get('/view-leaderboard/:organization_id', verifyToken, viewLeaderboard);
 
 router.get('/view-admin-dashboard/:organization_id', verifyToken, viewAdminDashboard);
+
+router.post('/add-lm-in-dept', verifyToken, addLMInDepartment);
 
 
 // GET LINE MANAGERS
