@@ -30,7 +30,7 @@ import { updatePassword } from "../controllers/allUserControllers/updatePassword
 import { getAllEmployees } from "../controllers/userControllers/getAllEmployees.js";
 import { deleteEmployee } from "../controllers/userControllers/deleteEmployee.js";
 import { viewAdminDashboard } from "../controllers/userControllers/viewAdminDashboard.js";
-import { viewLeaderboard } from "../controllers/leaderboardControllers/viewLeaderboard.js";
+import { viewReport } from "../controllers/leaderboardControllers/viewReport.js";
 
 router.get('/', getExampleData);
 
@@ -56,7 +56,7 @@ router.put('/update-profile/:user_id', verifyToken, upload.single('profilePhoto'
 
 router.get('/get-user', verifyToken, getUser);
 
-router.get('/view-leaderboard/:organization_id', verifyToken, viewLeaderboard);
+router.get('/view-report/:organization_id', verifyToken, viewReport);
 
 
 // GET LINE MANAGERS

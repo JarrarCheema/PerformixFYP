@@ -1,7 +1,7 @@
 import db from "../../config/db.js";
 import jwt from 'jsonwebtoken';
 
-export const viewLeaderboard = async (req, res) => {
+export const viewReport = async (req, res) => {
     try {
 
         const {organization_id} = req.params;
@@ -26,7 +26,7 @@ export const viewLeaderboard = async (req, res) => {
 
         // Step 1: Get all employees with their departments
         const getUsersQuery = `
-            SELECT u.user_id, u.user_name, u.full_name, u.phone, u.email, u.role_id, u.designation, 
+            SELECT u.user_id, u.user_name, u.full_name, u.phone, u.email, u.role_id, u.designation, u.created_on,
                    d.dept_id, d.department_id, d.department_name
             FROM users u
             JOIN user_departments ud ON u.user_id = ud.user_id
@@ -86,7 +86,7 @@ export const viewLeaderboard = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Leaderboard fetched successfully",
+            message: "Report fetched successfully",
             data: leaderboard
         });
 
