@@ -15,10 +15,11 @@ const UpdateProfile = () => {
   const [address, setAddress] = useState("");
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [previewPhoto, setPreviewPhoto] = useState(img);
+  const [userId, setUserId] = useState(null); // Store user ID from response
 
   const token = localStorage.getItem("token");
-  const user_id = localStorage.getItem("user_id");
 
+  // Fetch User Data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -34,22 +35,33 @@ const UpdateProfile = () => {
           setUsername(user.user_name);
           setPhone(user.phone);
           setOrganizationName(user.organization_name);
-          setPreviewPhoto(
-            `http://localhost:8080/${user.profile_photo.replace(
-              "D:\\Client Work\\Ahad Work\\Performix_Backend\\PerformixFYP\\server\\",
-              ""
-            )}`
-          );
+          setUserId(user.user_id); // Store user ID for later use
+// setAddress(user.address);
+          console.log("User Data:", user);
+          
+      // Constructing image URL safely
+if (user.profile_photo) {
+  const filePathArray = user.profile_photo.split("\\");
+  const fileName = filePathArray[filePathArray.length - 1];
+  setPreviewPhoto(
+    `http://localhost:8080/uploads/profilePicture/${fileName}`
+  );
+} else {
+  // If profile photo is null, set a default image
+  setPreviewPhoto(img);
+}
+
         }
       } catch (error) {
         toast.error("Failed to fetch user data.");
-        console.error("User Data Fetch Error:", error);
+        console.log("User Data Fetch Error:", error);
       }
     };
 
     fetchUserData();
   }, [token]);
 
+  // Update Profile
   const handleProfileUpdate = async () => {
     const formData = new FormData();
     formData.append("fullname", fullname);
@@ -61,15 +73,16 @@ const UpdateProfile = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/user/update-profile/${user_id}`,
+        `http://localhost:8080/user/update-profile/${userId}`, // Use userId from state
         formData,
         {
-          headers: {
+          headers: { 
             Authorization: `${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
+console.log("Profile Update Response:", response.data);
 
       if (response.data.success) {
         toast.success("Profile updated successfully!");
@@ -78,10 +91,11 @@ const UpdateProfile = () => {
       }
     } catch (error) {
       toast.error("Error updating profile.");
-      console.error("Profile Update Error:", error);
+      console.log("Profile Update Error:", error);
     }
   };
 
+  // Handle Photo Change
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -115,8 +129,6 @@ const UpdateProfile = () => {
           <p className="text-gray-500">{username}</p>
         </div>
       </div>
-
-
 
       <div className="flex flex-col md:flex-row mt-16 md:space-x-4">
         <div className="m-3">

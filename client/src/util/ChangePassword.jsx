@@ -20,8 +20,13 @@ const ChangePassword = () => {
     }
     try {
       const response = await axios.post(
-        `http://localhost:8080/user/reset-password/${token}`,
+        `http://localhost:8080/user/reset-password`,
         { oldPassword: currentPassword, newPassword: newPassword }
+        ,{
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
       );
 
       if (response.data.success) {
