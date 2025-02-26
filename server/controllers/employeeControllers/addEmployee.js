@@ -131,13 +131,13 @@ export const addEmployee = async (req, res) => {
                 });
             });
 
-            if(role_id === '2'){
+            if(role_id === '2' || role_id === 2 || role_id == 2){
                 const assignLMToDepartment = `
-                    UPDATE user_departments SET is_line_manager = ? WHERE user_id = ? AND department_id = ?;
+                    UPDATE user_departments SET is_line_manager = 1 WHERE user_id = ? AND department_id = ?;
                 `;
 
                 const result = await new Promise((resolve, reject) => {
-                    db.query(assignLMToDepartment, [1, userId, department_id], (err, results) => {
+                    db.query(assignLMToDepartment, [userId, department_id], (err, results) => {
                         if(err){
                             reject(err);
                         }
