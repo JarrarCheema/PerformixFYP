@@ -65,7 +65,7 @@ export const getEmployees = async (req, res) => {
             });
         }
 
-        // Get all employees in the managed departments
+        // Get all employees in the managed departments (including employees in departments without assigned metrics)
         const departmentIds = departments.map(dept => dept.dept_id);
         const getEmployeesQuery = `
             SELECT 
@@ -97,54 +97,43 @@ export const getEmployees = async (req, res) => {
 
         // Check evaluation status for each employee
         const employeesWithEvaluationStatus = await Promise.all(employees.map(async (employee) => {
-            // Fetch total assigned metric parameters for this employee
+            // Fetch total assigned metric parameters for this employee's department
             const getTotalMetricParamsQuery = `
-                SELECT COUNT(*) AS total_params
-                FROM metric_parameters mp
-                JOIN metric_assignments ma ON mp.metric_id = ma.metric_id
+                SELECT COUNT(mp.parameter_id) AS total_params
+                FROM metric_assignments ma
+                LEFT JOIN metric_parameters mp ON ma.metric_id = mp.metric_id
                 WHERE ma.department_id = ? AND ma.line_manager_id = ?;
             `;
-
-            console.log("DEPARTMENT_ID: ", employee.department_id);
-            console.log("USER_ID: ", userId);
-            
 
             const totalMetricParams = await new Promise((resolve, reject) => {
                 db.query(getTotalMetricParamsQuery, [employee.department_id, userId], (err, results) => {
                     if (err) reject(err);
-                    else resolve(results[0]?.total_params || 0);
+                    else resolve(results[0]?.total_params || 0); // Default to 0 if no metrics assigned
                 });
             });
 
             // Fetch count of evaluated parameters for this employee
             const getEvaluatedParamsQuery = `
-                SELECT COUNT(*) AS evaluated_params
+                SELECT COUNT(e.parameter_id) AS evaluated_params
                 FROM evaluations e
-                JOIN metric_parameters mp ON e.parameter_id = mp.parameter_id
-                JOIN metric_assignments ma ON mp.metric_id = ma.metric_id
+                LEFT JOIN metric_parameters mp ON e.parameter_id = mp.parameter_id
+                LEFT JOIN metric_assignments ma ON mp.metric_id = ma.metric_id
                 WHERE e.employee_id = ? AND ma.department_id = ? AND ma.line_manager_id = ?;
             `;
 
             const evaluatedParams = await new Promise((resolve, reject) => {
                 db.query(getEvaluatedParamsQuery, [employee.user_id, employee.department_id, userId], (err, results) => {
                     if (err) reject(err);
-                    else resolve(results[0]?.evaluated_params || 0);
+                    else resolve(results[0]?.evaluated_params || 0); // Default to 0 if no evaluations exist
                 });
             });
 
             // Determine evaluation status
             let evaluationStatus = "Pending";
 
-            if((evaluatedParams === totalMetricParams) && evaluatedParams !== 0 && totalMetricParams !== 0){
-                evaluationStatus = "Complete"
+            if (evaluatedParams === totalMetricParams && totalMetricParams !== 0) {
+                evaluationStatus = "Complete";
             }
-
-
-            console.log("EVALUAION STATUS: ", evaluationStatus);
-            console.log("EVALUATED PARAMS: ", evaluatedParams);
-            console.log("TOTAL METRIC PARAMS: ", totalMetricParams);
-            
-            
 
             return {
                 user_id: employee.user_id,
