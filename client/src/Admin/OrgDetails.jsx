@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PaginatedTable from "../Flowbite/PaginatedTable";
 import AddOrganizationModal from "../Modal/AddOrganizationModal";
@@ -13,8 +13,8 @@ const OrgDetails = () => {
   const [organizations, setOrganizations] = useState([]);
   const token = localStorage.getItem("token");
 
-  // Fetching data from backend using useCallback for memoization
-  const fetchOrganizations = useCallback(async () => {
+  // Fetching data from backend
+  const fetchOrganizations = async () => {
     try {
       const response = await axios.get(
         "http://localhost:8080/organization/get-organizations",
@@ -26,6 +26,7 @@ const OrgDetails = () => {
         }
       );
       console.log("Fetched Organizations:", response.data);
+
       // Mapping the response to table format
       const orgData = response.data.organizations.map((org) => ({
         id: org.organization_id,
@@ -38,15 +39,25 @@ const OrgDetails = () => {
         employees: org.employee_count,
       }));
       setOrganizations(orgData);
+
+      // Show success toast notification after fetching data
+      toast.success("Organizations fetched successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     } catch (error) {
       console.error("Error fetching organizations:", error);
+      toast.error("Failed to fetch organizations. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
-  }, [token]);
+  };
 
   // Call fetchOrganizations once on component mount
   useEffect(() => {
     fetchOrganizations();
-  }, [fetchOrganizations]);
+  }, []);
 
   // Column definitions with ID column added
   const columns = [
@@ -61,71 +72,78 @@ const OrgDetails = () => {
     { header: "Action", accessor: "action", isAction: true, key: "action" },
   ];
 
-  const handleEdit = useCallback((organization) => {
+  // Edit handler
+  const handleEdit = (organization) => {
     setSelectedOrg(organization);
     console.log("Edit organization:", organization);
     setEditModalOpen(true);
-  }, []);
+  };
 
-  const handleDelete = useCallback(
-    async (organization) => {
-      const confirmDelete = window.confirm(
-        `Are you sure you want to delete the organization "${organization.name}"?`
-      );
+  // Delete handler
+  const handleDelete = async (organization) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete the organization "${organization.name}"?`
+    );
 
-      if (confirmDelete) {
-        try {
-          await axios.delete(
-            `http://localhost:8080/organization/delete-organization/${organization.id}`,
-            {
-              headers: {
-                Authorization: `${token}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log("Deleted organization:", organization);
-          setOrganizations((prevOrgs) =>
-            prevOrgs.filter((org) => org.id !== organization.id)
-          );
-          toast.success("Organization deleted successfully!", {
-            position: toast.POSITION.TOP_RIGHT,
-            autoClose: 3000,
-          });
-        } catch (error) {
-          console.error("Error deleting organization:", error);
-          toast.error("Failed to delete organization. Please try again.", {
-            position: toast.POSITION.TOP_RIGHT,
-            autoClose: 3000,
-          });
-        }
-      } else {
-        console.log("Deletion canceled for:", organization);
+    if (confirmDelete) {
+      try {
+        await axios.delete(
+          `http://localhost:8080/organization/delete-organization/${organization.id}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        console.log("Deleted organization:", organization);
+
+        setOrganizations((prevOrgs) =>
+          prevOrgs.filter((org) => org.id !== organization.id)
+        );
+
+        toast.success("Organization deleted successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } catch (error) {
+        console.error("Error deleting organization:", error);
+        toast.error("Failed to delete organization. Please try again.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
-    },
-    [token]
-  );
+    } else {
+      console.log("Deletion canceled for:", organization);
+    }
+  };
 
-  const handleAddOrganization = useCallback(() => {
+  // Open Add Modal
+  const handleAddOrganization = () => {
     setModalOpen(true);
-  }, []);
+  };
 
-  const handleModalClose = useCallback(() => {
+  // Close Add Modal and Refresh List
+  const handleModalClose = () => {
     setModalOpen(false);
-    fetchOrganizations(); // Refresh list after adding or editing
-  }, [fetchOrganizations]);
+    fetchOrganizations();
+  };
 
-  const handleEditModalClose = useCallback(() => {
+  // Close Edit Modal and Refresh List
+  const handleEditModalClose = () => {
     setEditModalOpen(false);
-    fetchOrganizations(); // Refresh list after editing
-  }, [fetchOrganizations]);
+    fetchOrganizations();
+  };
 
   return (
     <div className="bg-white shadow rounded-lg p-6">
-      <ToastContainer />
+
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-700">Organization Details</h2>
+        <h2 className="text-lg font-semibold text-gray-700">
+          Organization Details
+        </h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg"
           onClick={handleAddOrganization}

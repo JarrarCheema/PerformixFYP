@@ -7,6 +7,8 @@ import { FaHouseChimneyMedical } from "react-icons/fa6";
 import AddEvaluationModal from "../Modal/AddEvaluationModal";
 import { FaRegEye } from "react-icons/fa";
 import ViewEvaluationModal from "../Modal/ViewEvaluationModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Employees = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -44,11 +46,23 @@ const Employees = () => {
 
       if (response.data.success) {
         setEmployees(response.data.Line_Managers || []);
+        toast.success("Employees fetched successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        })
       } else {
         console.error("Failed to fetch employees:", response.data.message);
+        toast.error("Failed to fetch employees!", {
+          position: "top-right",
+          autoClose: 3000,
+        })
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
+      toast.error("Error fetching employees!", {
+        position: "top-right",
+        autoClose: 3000,
+      })
     }
   };
 // Handle opening the View Evaluation Modal

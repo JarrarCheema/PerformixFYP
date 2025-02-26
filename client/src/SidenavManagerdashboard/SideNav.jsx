@@ -33,7 +33,7 @@ const listItemData = [
     icon: <img src={dicon} alt="Dashboard" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
   {
-    label: "Teams",
+    label: "Employee",
     link: "/manger/team",
     icon: <img src={eicon} alt="Org Details" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
@@ -42,11 +42,11 @@ const listItemData = [
     link: "/manger/departments",
     icon: <img src={deicon} alt="Departments" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
-  {
-    label: "Evaluation",
-    link: "/manger/evaluation",
-    icon: <img src={oicon} alt="Employees" style={{ width: "18px", height: "18px" }} />,  // Use image icon
-  },
+  // {
+  //   label: "Evaluation",
+  //   link: "/manger/evaluation",
+  //   icon: <img src={oicon} alt="Employees" style={{ width: "18px", height: "18px" }} />,  // Use image icon
+  // },
   // {
   //   label: "Feedback",
   //   link: "/manger/feedback",
@@ -124,7 +124,7 @@ function SideNav(props) {
 
  
       {/* Search Input */}
-      <form class="max-w-md mx-2">
+      {/* <form class="max-w-md mx-2">
         <div class="relative">
           <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
             <svg
@@ -151,7 +151,7 @@ function SideNav(props) {
             required
           />
         </div>
-      </form>
+      </form> */}
 
       {/* Menu List */}
       <List

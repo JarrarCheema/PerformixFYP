@@ -35,11 +35,13 @@ import FeedBack from './Employee/FeedBack';
 import EmployeeLeaderBoard from './Employee/LeaderBoard';
 import CreateOrganiztaion from './Auth/CreateOrganiztion';
 import EmployeeNamePass from './Auth/EmployeeNamePass';
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <Router>
       <Routes>
+      <ToastContainer position="top-right" autoClose={3000} />
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />

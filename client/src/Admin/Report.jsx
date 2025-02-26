@@ -8,6 +8,8 @@ import { Datepicker } from "flowbite-react";
 import GraphReport from "./GraphReport";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Report = () => {
   const rowsPerPage = 10;
@@ -48,10 +50,18 @@ const Report = () => {
           }));
           setTd(formattedData);
           console.log("Formatted Data:", formattedData);
+          toast.success("Data fetched successfully!", {
+            position:'top-right',
+            autoClose:3000
+          })
           
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+        toast.error("Error fetching data!", {
+          position:'top-right',
+          autoClose:3000
+        })
       }
     };
     fetchData();
@@ -128,6 +138,7 @@ const Report = () => {
 
   return (
     <div>
+      <ToastContainer/>
       <div className="flex flex-col lg:flex-row justify-between items-center m-6 gap-4">
         <div className="flex flex-col md:flex-row gap-4">
         <p className="text-gray-900 font-semibold flex items-center">

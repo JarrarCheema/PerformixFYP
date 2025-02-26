@@ -8,10 +8,10 @@ const isAuthenticated = () => {
   return !!token; // Returns true if token exists, otherwise false
 };
 
-const PrivateRoute = ({ children }) => {
+const AdminPrivateRoute = ({ children }) => {
     console.log(isAuthenticated());
     
   return isAuthenticated() ? children : <Navigate to="/login" />;
 };
 
-export default PrivateRoute;
+export default AdminPrivateRoute;

@@ -10,7 +10,7 @@ function Evaluation() {
       <div className="flex justify-between items-center">
         <h3 className="text-xl m-2 font-bold text-[#000000] dark:text-white">Employee</h3>
 
-        <div className="flex items-center border border-gray-200 dark:border-gray-700 m-2 p-3 rounded-lg  sm:w-auto">
+        {/* <div className="flex items-center border border-gray-200 dark:border-gray-700 m-2 p-3 rounded-lg  sm:w-auto">
           <ul className="flex flex-col sm:flex-row space-x-0 sm:space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 sm:mb-0">
             <li>
               <button
@@ -33,11 +33,11 @@ function Evaluation() {
               </button>
             </li>
           </ul>
-        </div>
+        </div> */}
       </div>
       <div>
         {activeTab === "Team" ? (
-          <Team />
+        <Department />
         ) : (
           <Department />
         )}

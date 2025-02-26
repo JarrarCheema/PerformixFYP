@@ -3,7 +3,11 @@ import { HiSearch, HiX } from "react-icons/hi"; // Importing search & close icon
 import PaginatedTable from "../Flowbite/PaginatedTable";
 import AddDepartmentModal from "../Modal/AddDepartmentModal";
 import EditDepartmentModal from "../Modal/EditDepartmentModal";
-import axios from "axios"; // Import axios for API requests
+import axios from "axios";
+
+// Toastify for notifications
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Departments = () => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -18,7 +22,7 @@ const Departments = () => {
   const organizationId = localStorage.getItem("selectedOrganizationId");
 
   // Check for token and organizationId in console
-  console.log('token :', token, 'organizationId :', organizationId);
+  console.log("token :", token, "organizationId :", organizationId);
 
   // Column definitions for the table
   const columns = [
@@ -43,6 +47,12 @@ const Departments = () => {
 
       if (response.data.success) {
         setDepartments(response.data.departments); // Set the fetched departments
+
+        // Success toast for fetching data
+        toast.success("Departments fetched successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       } else {
         console.error("Failed to fetch departments:", response.data.message);
       }
@@ -60,42 +70,57 @@ const Departments = () => {
     } else {
       console.error("Token or Organization ID is missing.");
     }
-  }, [fetchDepartments]);
+  }, [token, organizationId]);
+
 
   const handleEdit = useCallback((department) => {
     setSelectedOrg(department);
     setEditModalOpen(true);
-  }, []);
+  }, [fetchDepartments]);
 
-  const handleDelete = useCallback(async (department) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete the department "${department.department_name}"?`
-    );
+  const handleDelete = useCallback(
+    async (department) => {
+      const confirmDelete = window.confirm(
+        `Are you sure you want to delete the department "${department.department_name}"?`
+      );
 
-    if (confirmDelete) {
-      try {
-        // Send the department_id to the delete API
-        const response = await axios.delete(
-          `http://localhost:8080/department/delete-department/${department.department_id}`,
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
+      if (confirmDelete) {
+        try {
+          // Send the department_id to the delete API
+          const response = await axios.delete(
+            `http://localhost:8080/department/delete-department/${department.department_id}`,
+            {
+              headers: {
+                Authorization: `${token}`,
+              },
+            }
+          );
+
+          if (response.data.success) {
+            // Success toast for deletion
+            toast.success(`Department "${department.department_name}" deleted successfully.`, {
+              position: "top-right",
+              autoClose: 3000,
+            });
+
+            fetchDepartments(); // Refresh departments after deletion
+          } else {
+            toast.error(`Failed to delete department: ${response.data.message}`, {
+              position: "top-right",
+              autoClose: 3000,
+            });
           }
-        );
-
-        if (response.data.success) {
-          alert(`Department "${department.department_name}" deleted successfully.`);
-          fetchDepartments(); // Refresh departments after deletion
-        } else {
-          alert(`Failed to delete department: ${response.data.message}`);
+        } catch (error) {
+          console.error("Error deleting department:", error);
+          toast.error("There was an error deleting the department.", {
+            position: "top-right",
+            autoClose: 3000,
+          });
         }
-      } catch (error) {
-        console.error("Error deleting department:", error);
-        alert("There was an error deleting the department.");
       }
-    }
-  }, [fetchDepartments, token]);
+    },
+    [fetchDepartments, token]
+  );
 
   // Filtered data based on search input
   const filteredData = departments.filter((dept) =>
@@ -104,6 +129,7 @@ const Departments = () => {
 
   return (
     <div className="bg-white shadow rounded-lg p-6">
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-700">Department Management</h2>
@@ -149,25 +175,17 @@ const Departments = () => {
         />
       )}
 
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4 text-gray-500 text-sm">
-        <span className="font-bold text-md text-gray-800">
-          Showing <span className="text-blue-900">1-10</span> of{" "}
-          <span className="text-blue-900">{departments.length}</span>
-        </span>
-      </div>
-
       {/* Modals */}
       <AddDepartmentModal
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
-        refreshDepartments={fetchDepartments} // Pass the fetchDepartments function to refresh the list
+        refreshDepartments={fetchDepartments}
       />
       <EditDepartmentModal
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         departmentData={selectedOrg}
-        refreshDepartments={fetchDepartments} // Pass the fetchDepartments function to refresh the list
+        refreshDepartments={fetchDepartments}
       />
     </div>
   );

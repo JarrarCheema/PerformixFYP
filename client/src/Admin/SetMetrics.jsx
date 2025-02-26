@@ -11,6 +11,8 @@ import { FiMoreVertical } from "react-icons/fi";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ShowLineMangerDepartment from "../Modal/ShowLineMangerDepartment";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SetMetrics = () => {
   const [isAddMetricsOpen, setIsAddMetricsOpen] = useState(false);
@@ -55,9 +57,17 @@ const [selectedMetricId, setSelectedMetricId] = useState(null);
             metrics: metric.metric_name,
           }));
           setMetricsData(formattedData);
+          toast.success("Metrics fetched successfully!", {
+            position: "top-right",
+            autoClose:3000,
+          })
         }
       } catch (error) {
         console.error("Error fetching metrics:", error);
+        toast.error("Error fetching metrics!", {
+          position: "top-right",
+          autoClose: 3000,
+        })
       }
     };
 

@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import img from "../assets/Image wrap.png";
 
+
 const UpdateProfile = () => {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
@@ -38,7 +39,10 @@ const UpdateProfile = () => {
           setUserId(user.user_id); // Store user ID for later use
 // setAddress(user.address);
           console.log("User Data:", user);
-          
+          toast.success("User data fetched successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          })
       // Constructing image URL safely
 if (user.profile_photo) {
   const filePathArray = user.profile_photo.split("\\");
