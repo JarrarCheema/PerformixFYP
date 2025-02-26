@@ -221,6 +221,9 @@ export const addLMEvaluation = async (req , res) => {
             });
         }
 
+        console.log("DEPARTMENT ID: ", department_id.department_id);
+        
+        const dept_id = department_id.department_id
 
         // CHECK IF LINE MANAGER AND EMPLOYEE IS FROM THIS DEPARTMENT
 
@@ -229,7 +232,7 @@ export const addLMEvaluation = async (req , res) => {
         `;        
 
         const result = await new Promise((resolve , reject) => {
-            db.query(checkUserDepartmentsQuery, [admin_id, line_manager_id, department_id], (err, results) => {
+            db.query(checkUserDepartmentsQuery, [admin_id, line_manager_id, dept_id], (err, results) => {
                 if(err){
                     reject(err);
                 }
