@@ -68,14 +68,18 @@ export const viewAdminDashboard = async (req, res) => {
 
         // Step 4: Get Total Performance Scores Per Department
         const departmentScoresQuery = `
-            SELECT d.dept_id, d.department_name, 
-                COALESCE(SUM(e.marks_obtained), 0) AS total_performance_score
+            SELECT 
+                d.dept_id, 
+                d.department_name, 
+                COALESCE(SUM(e.marks_obtained), 0) + COALESCE(SUM(lme.marks_obtained), 0) AS total_performance_score
             FROM departments d
             LEFT JOIN user_departments ud ON d.dept_id = ud.department_id
             LEFT JOIN users u ON ud.user_id = u.user_id AND (u.role_id = 2 OR u.role_id = 3)
-            LEFT JOIN evaluations e ON u.user_id = e.employee_id
+            LEFT JOIN evaluations e ON u.user_id = e.employee_id AND u.role_id = 3
+            LEFT JOIN line_manager_evaluations lme ON u.user_id = lme.line_manager_id AND u.role_id = 2
             WHERE d.organization_id = ?
             GROUP BY d.dept_id, d.department_name;
+
         `;
         const departmentScores = await new Promise((resolve, reject) => {
             db.query(departmentScoresQuery, [organization_id], (err, results) => {
@@ -86,15 +90,29 @@ export const viewAdminDashboard = async (req, res) => {
 
         // Step 5: Get All Employees in the Organization
         const employeesDataQuery = `
-            SELECT u.user_id, u.full_name, u.email, u.role_id, u.is_login, 
-                   d.dept_id, d.department_name, 
-                   COALESCE(e.marks_obtained, 0) AS performance_score
+            SELECT 
+                u.user_id, 
+                u.full_name, 
+                u.email, 
+                u.role_id, 
+                u.is_login, 
+                d.dept_id, 
+                d.department_name, 
+                COALESCE(
+                    CASE 
+                        WHEN u.role_id = 3 THEN e.marks_obtained 
+                        WHEN u.role_id = 2 THEN lme.marks_obtained 
+                    END, 0
+                ) AS performance_score
             FROM users u
             JOIN user_departments ud ON u.user_id = ud.user_id
             JOIN departments d ON ud.department_id = d.dept_id
-            LEFT JOIN evaluations e ON u.user_id = e.employee_id
-            WHERE d.organization_id = ? AND (u.role_id = 2 OR u.role_id = 3)
+            LEFT JOIN evaluations e ON u.user_id = e.employee_id AND u.role_id = 3
+            LEFT JOIN line_manager_evaluations lme ON u.user_id = lme.line_manager_id AND u.role_id = 2
+            WHERE d.organization_id = 1
+            AND u.role_id IN (2, 3)
             ORDER BY d.department_name, u.full_name;
+
         `;
         const employeesData = await new Promise((resolve, reject) => {
             db.query(employeesDataQuery, [organization_id], (err, results) => {
