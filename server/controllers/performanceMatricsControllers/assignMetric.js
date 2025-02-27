@@ -164,6 +164,29 @@ console.log("checkMetricExist: ", checkMetricExist);
 
 
 
+        // CHECK IF METRIC IS ALREADY ASSIGNED TO THE SAME LINE MANAGER< DEPARTMENT
+        const checkIfDataExist = `
+            SELECT * FROM metric_assignments WHERE metric_id = ? AND line_manager_id = ? AND department_id = ?;
+        `;
+
+        const result = await new Promise((resolve , reject) => {
+            db.query(checkIfDataExist, [metric_id, line_manager_id, department_id], (err, results) => {
+                if(err){
+                    reject(err);
+                }
+                else{
+                    resolve(results);
+                }
+            });
+        });
+
+        if(result.length > 0){
+            return res.status(400).send({
+                success: false,
+                message: "The given data is already assigned"
+            });
+        }
+
         // Check if 'metric_assignments' table exists, create it if it doesn't
         const createTableQuery = `
             CREATE TABLE IF NOT EXISTS metric_assignments (
