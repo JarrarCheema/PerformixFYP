@@ -308,8 +308,14 @@ export const addEvaluation = async (req , res) => {
             SELECT COUNT(*) AS usersInDepartment FROM user_departments WHERE user_id IN (?, ?) AND department_id = ?;
         `;        
 
+        console.log("LINE MANAGER ID: ", line_manager_id);
+        console.log("EMPLOYEE ID: ", employee_id);        
+        console.log("DEPARTMENT ID: ", department_id.department_id);
+        
+        
+
         const result = await new Promise((resolve , reject) => {
-            db.query(checkUserDepartmentsQuery, [line_manager_id, employee_id, department_id], (err, results) => {
+            db.query(checkUserDepartmentsQuery, [line_manager_id, employee_id, department_id.department_id], (err, results) => {
                 if(err){
                     reject(err);
                 }
@@ -319,6 +325,7 @@ export const addEvaluation = async (req , res) => {
             });
         });
         
+        console.log("USERS COUNT: ", typeof result.usersInDepartment);
         
 
         if(result.usersInDepartment !== 2){

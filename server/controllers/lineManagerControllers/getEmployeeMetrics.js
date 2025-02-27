@@ -31,7 +31,6 @@ export const getEmployeeMetrics = async (req, res) => {
             });
         }
 
-
         // CHECK ONLY user_id OF EMPLOYEES IS ACCEPTED
         const isUserEmployee = `
             SELECT * FROM users WHERE user_id = ? AND role_id = 3 AND is_active = 1;
@@ -54,7 +53,6 @@ export const getEmployeeMetrics = async (req, res) => {
                 message: "Only Staff employee's metrics can be shown"
             });
         }
-
 
         // Fetch all metrics assigned to the employee
         const getAssignedMetricsQuery = `
@@ -97,19 +95,23 @@ export const getEmployeeMetrics = async (req, res) => {
                 });
             });
 
-            // Check which parameters are NOT evaluated for the given user
+            if (!parameters || parameters.length === 0) {
+                continue; // Skip this metric if no parameters are found
+            }
+
+            // Check which parameters are NOT evaluated for the given user only if parameters exist
             const getEvaluatedParamsQuery = `
                 SELECT e.parameter_id
                 FROM evaluations e
                 WHERE e.employee_id = ? AND e.parameter_id IN (?);
             `;
 
-            const evaluatedParams = await new Promise((resolve, reject) => {
+            const evaluatedParams = parameters.length > 0 ? await new Promise((resolve, reject) => {
                 db.query(getEvaluatedParamsQuery, [user_id, parameters.map(p => p.parameter_id)], (err, results) => {
                     if (err) reject(err);
                     else resolve(results.map(r => r.parameter_id));
                 });
-            });
+            }) : [];
 
             // Filter out evaluated parameters
             const pendingParameters = parameters.filter(p => !evaluatedParams.includes(p.parameter_id));
