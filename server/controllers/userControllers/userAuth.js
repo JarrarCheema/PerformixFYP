@@ -269,6 +269,7 @@ const loginUser = async (req, res) => {
             success: true,
             message: "User Logged In Successfully",
             token: token,
+            users_data: user,
             anyOrganization: anyOrganization, // true if user has an organization, false otherwise
             isAdmin: isAdmin,
             isManager: isManager,
