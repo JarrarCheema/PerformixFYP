@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import MuiTable from "../../mui/TableMuiCustom";
-import { Button, Chip } from "@mui/material";
+import { Chip } from "@mui/material";
 import { Checkbox } from "flowbite-react";
+import LineManagerEvaluationModal from "../../Modal/LineManagerEvaluationModal";
 
 const Department = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRows, setSelectedRows] = useState([]); // State to keep track of selected rows
+  const [selectedRows, setSelectedRows] = useState([]); 
+  const [employees, setEmployees] = useState([]); 
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Modal state
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const rowsPerPage = 10;
 
+  // Retrieve token from localStorage
+  const token = localStorage.getItem("token");
+
+  // Column Headers
   const th = {
     id: "#ID",
     name: "Name",
@@ -16,23 +26,55 @@ const Department = () => {
     status: "Status",
     action: "Action",
   };
+  const handleEvaluateClick = (id) => {
+    setSelectedEmployeeId(id);
+    setIsOpen(true);
+  };
 
-  const td = [
-    { id: "001", name: "Aaqib Aizaz", department: "Design", designation: "Sr. UI/UX Designer", status: "Completed" },
-    { id: "002", name: "Jarrar Cheema", department: "Development", designation: "Sr. Backend Developer", status: "Pending" },
-    { id: "003", name: "Aiza Haleem", department: "Design", designation: "UI/UX Designer", status: "Completed" },
-    { id: "004", name: "Khadija Asif", department: "Design", designation: "UI/UX Designer", status: "Pending" },
-    { id: "005", name: "M. Waseem", department: "Project Management", designation: "Project Manager", status: "Completed" },
-    { id: "006", name: "Awais Ahmed", department: "Business Analyst", designation: "B.A", status: "Pending" },
-    { id: "007", name: "Nasir Ali", department: "Head of Department", designation: "CEO", status: "Completed" },
-  ];
+  // Fetch employees data from API
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("http://localhost:8080/lm/get-employees", {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
 
-  const totalPages = Math.ceil(td.length / rowsPerPage);
+        if (response.data.success) {
+          const mappedData = response.data.employees.map((emp) => ({
+            id: emp.user_id,
+            name: emp.full_name,
+            department: emp.department.department_name,
+            designation: emp.designation,
+            status: emp.evaluation_status,
+          }));
+
+          setEmployees(mappedData);
+        } else {
+          console.error("Failed to fetch employees:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchEmployees();
+    } else {
+      console.error("Token is missing.");
+    }
+  }, [token]);
+
+  const totalPages = Math.ceil(employees.length / rowsPerPage);
 
   // Handle Select All Checkbox
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedRows(td.map((row) => row.id));
+      setSelectedRows(employees.map((row) => row.id));
     } else {
       setSelectedRows([]);
     }
@@ -46,6 +88,10 @@ const Department = () => {
         : [...prevSelectedRows, id]
     );
   };
+
+  // Handle Modal Open and Close
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
 
   const customFields = [
     {
@@ -65,12 +111,16 @@ const Department = () => {
     },
     {
       name: "action",
-      data: () => (
-        <div className="text-center font-semibold text-sm font-medium text-gray-500 dark:text-gray-400 p-2 bg-white rounded-md shadow-md">
+      data: (_, row) => (
+        <div
+          className="text-center justify-center p-3 bg-white rounded-md shadow-md cursor-pointer"
+          onClick={() => handleEvaluateClick(row.id)}
+        >
           <p className="text-gray-900 dark:text-white font-semibold">Evaluate</p>
         </div>
       ),
     },
+    
     {
       name: "id",
       data: (value) => (
@@ -87,68 +137,68 @@ const Department = () => {
 
   return (
     <div>
-      <MuiTable
-        th={{
-          ...th,
-          id: (
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Checkbox
-                onChange={handleSelectAll}
-                checked={selectedRows.length === td.length}
-              />
-              <span style={{ marginLeft: "8px" }}>#ID</span>
-            </div>
-          ),
-        }}
-        td={td.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)}
-        customFields={customFields}
-        styleTableContainer={{ boxShadow: "none", borderRadius: "10px" }}
-        styleTableThead={{ backgroundColor: "#F8F9FA" }}
-        styleTableTh={{ fontWeight: "bold", color: "#333", fontSize: "16px" }}
-        styleTableTbody={{ backgroundColor: "#FFFFFF" }}
-        cellStyles={{ name: { fontWeight: "500", color: "#555", fontSize: "16px" }, department: { fontSize: "16px", color: "#444" }, designation: { fontSize: "16px", color: "#444" } }}
-        rowStyles={{ backgroundColor: "#F8F8F8", fontSize: "16px", color: "#333" }}
-        headerRounded={true}
-        rowRounded={true}
-      />
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <MuiTable
+          th={{
+            ...th,
+            id: (
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Checkbox
+                  onChange={handleSelectAll}
+                  checked={selectedRows.length === employees.length}
+                />
+                <span style={{ marginLeft: "8px" }}>#ID</span>
+              </div>
+            ),
+          }}
+          td={employees.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)}
+          customFields={customFields}
+          styleTableContainer={{ boxShadow: "none", borderRadius: "10px" }}
+          styleTableThead={{ backgroundColor: "#F8F9FA" }}
+          styleTableTh={{ fontWeight: "bold", color: "#333", fontSize: "16px" }}
+          styleTableTbody={{ backgroundColor: "#FFFFFF" }}
+          cellStyles={{
+            name: { fontWeight: "500", color: "#555", fontSize: "16px" },
+            department: { fontSize: "16px", color: "#444" },
+            designation: { fontSize: "16px", color: "#444" },
+            action: { fontSize: "16px", color: "#444" },
+          }}
+          rowStyles={{ backgroundColor: "#F8F8F8", fontSize: "16px", color: "#333" }}
+          headerRounded={true}
+          rowRounded={true}
+        />
+      )}
 
       <div className="flex justify-between items-center mt-4">
         <p className="text-gray-900 dark:text-white font-semibold">
-          Showing {((currentPage - 1) * rowsPerPage) + 1} to {Math.min(currentPage * rowsPerPage, td.length)} of {td.length}
+          Showing {((currentPage - 1) * rowsPerPage) + 1} to {Math.min(currentPage * rowsPerPage, employees.length)} of {employees.length}
         </p>
         <nav aria-label="Page navigation example">
           <ul className="inline-flex -space-x-px text-sm">
             <li>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                className="px-3 h-8 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
-              >
+              <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} className="px-3 h-8 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
                 Previous
               </button>
             </li>
             {Array.from({ length: totalPages }, (_, i) => (
               <li key={i}>
-                <button
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 h-8 border border-gray-300 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 ${
-                    currentPage === i + 1 ? "bg-blue-700 text-white" : "bg-white text-gray-500"
-                  }`}
-                >
+                <button onClick={() => setCurrentPage(i + 1)} className={`px-3 h-8 border ${currentPage === i + 1 ? "bg-blue-700 text-white" : "bg-white text-gray-500"}`}>
                   {i + 1}
                 </button>
               </li>
             ))}
             <li>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                className="px-3 h-8 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
-              >
+              <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} className="px-3 h-8 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
                 Next
               </button>
             </li>
           </ul>
         </nav>
       </div>
+
+      <LineManagerEvaluationModal isOpen={isOpen} onClose={closeModal} employeeId={selectedEmployeeId} />
     </div>
   );
 };

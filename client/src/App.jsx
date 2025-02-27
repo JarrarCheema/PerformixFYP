@@ -35,7 +35,7 @@ import FeedBack from './Employee/FeedBack';
 import EmployeeLeaderBoard from './Employee/LeaderBoard';
 import CreateOrganiztaion from './Auth/CreateOrganiztion';
 import EmployeeNamePass from './Auth/EmployeeNamePass';
-
+import ManagerLeaderBorad from './Manager/LeaderBoard';
 import PrivateRoute from './util/PrivateRoute'; // Import PrivateRoute
 
 function App() {
@@ -88,7 +88,7 @@ function App() {
           <Route path='/manger/matrix' element={<Matrix_Information />} />
           <Route path='/manger/team' element={<Team />} />
           <Route path='/manger/feedback' element={<Feedback />} />
-          <Route path='/manger/leaderboard' element={<LeaderBoard />} />
+          <Route path='/manger/leaderboard' element={<ManagerLeaderBorad />} />
           <Route path="/manger/setting" element={<Settings />} />
           <Route path='/manger/report' element={<ReportManager />} />
         </Route>

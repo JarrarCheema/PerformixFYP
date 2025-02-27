@@ -41,6 +41,7 @@ const [selectedMetricId, setSelectedMetricId] = useState(null);
   // Fetch Metrics Data
   useEffect(() => {
     const token = localStorage.getItem("token");
+    console.log("Token:", token);
     
     const fetchMetrics = async () => {
       try {

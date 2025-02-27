@@ -73,7 +73,7 @@ if (user.profile_photo) {
     formData.append("phone", phone);
     formData.append("organization_name", organizationName);
     formData.append("address", address);
-    if (profilePhoto) formData.append("profilePhotoPath", profilePhoto);
+    if (profilePhoto) formData.append("profilePhoto", profilePhoto);
 
     try {
       const response = await axios.put(
