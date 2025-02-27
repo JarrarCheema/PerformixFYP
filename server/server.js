@@ -11,6 +11,7 @@ import departmentRoutes from "./routes/departmentRoutes.js";
 import performanceMetricRoutes from './routes/performanceMetricRoutes.js';
 import performanceParameterRoutes from './routes/performenceParameterRoutes.js';
 import lmRoutes from './routes/lineManagerRoutes.js';
+import staffRoutes from './routes/staffRoutes.js';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(cors());
 // Use routes
 app.use('/user', userRoutes);
 app.use('/lm', lmRoutes);
+app.use('/staff', staffRoutes);
 app.use('/organization', organizationRoutes);
 app.use('/department', departmentRoutes);
 app.use('/performance', performanceMetricRoutes);
