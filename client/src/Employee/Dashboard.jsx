@@ -33,7 +33,7 @@ const Dashboard = () => {
         setRank(data.rank);
 
         const labels = data.currentMonthPerformance.map((item) => item.parameter_name);
-        const percentages = data.currentMonthPerformance.map((item) => item.percentage);
+        const percentages = data.currentMonthPerformance.map((item) => item.percentage.toFixed(2));
 
         setChartData({
           labels,

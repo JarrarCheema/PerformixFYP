@@ -176,18 +176,8 @@ console.log("Profile Update Response:", response.data);
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
+        
             <div>
-              <Label htmlFor="organization_name" value="Organization Name" />
-              <TextInput
-                id="organization_name"
-                type="text"
-                sizing="md"
-                placeholder="Organization Name"
-                value={organizationName}
-                onChange={(e) => setOrganizationName(e.target.value)}
-              />
-            </div>
-            <div className="md:col-span-2">
               <Label htmlFor="address" value="Address" />
               <TextInput
                 id="address"
