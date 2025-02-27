@@ -47,12 +47,20 @@ export default function Login() {
       const data = response.data;
       console.log("data:", data);
 
-      const { token, anyOrganization, isManager, isStaff , userId } = data;
+      const { token, anyOrganization, isManager, isStaff , userId , users_data } = data;
 console.log("anyOrganization", anyOrganization);
 console.log("isManager", isManager);
 console.log("isStaff", isStaff);
+console.log("users_data", users_data.email);
+console.log("users_data", users_data.profile_photo);
+console.log('users_data', users_data.full_name);
 
 
+
+
+localStorage.setItem("email", users_data.email);
+localStorage.setItem("full_name", users_data.full_name);
+localStorage.setItem("profile_photo", users_data.profile_photo);
       // Store token in localStorage
       localStorage.setItem("token", token);
 localStorage.setItem('user_id', userId);
@@ -64,15 +72,22 @@ localStorage.setItem('user_id', userId);
 
       // Navigate based on user role
       setTimeout(() => {
-        if (isStaff) {
-          navigate("/employee/dashboard");
-        } else if (isManager) {
-          navigate("/manger/dashboard");
-        } else if (!anyOrganization) {
-          navigate("/create-organization");
-        } else {
-          navigate("/select-organization");
-        }
+       // After checking roles and before navigating
+if (isStaff) {
+  localStorage.setItem("Stafftoken", token);
+  localStorage.removeItem("Managertoken"); // Ensure no conflict
+  
+  navigate("/employee/dashboard");
+} else if (isManager) {
+  localStorage.setItem("Managertoken", token);
+  localStorage.removeItem("Stafftoken"); // Ensure no conflict
+  navigate("/manger/dashboard");
+} else if (!anyOrganization) {
+  navigate("/create-organization");
+} else {
+  navigate("/select-organization");
+}
+
       }, 2000);
     } catch (error) {
       console.error("Login error:", error);

@@ -76,8 +76,14 @@ function SideNav(props) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("Managertoken");
+    localStorage.removeItem("Stafftoken");
+    localStorage.removeItem("email");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("profile_photo");
     navigate("/login");
   };
+  
   const handleProfile = () => {
     localStorage.removeItem("authToken");
     navigate("/admin/setting");

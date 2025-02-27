@@ -1,34 +1,80 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard = () => {
-  const activities = [
-    { title: "General Text", description: "John Doe added as an Employee in Sales", time: "1 hr ago" },
-    { title: "General Text", description: "John Doe updated profile information", time: "2 hrs ago" },
-    { title: "General Text", description: "Jane Smith completed a project milestone", time: "4 hrs ago" },
-    { title: "General Text", description: "David Brown assigned a new task", time: "5 hrs ago" },
-  ];
+  const [rank, setRank] = useState(null);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: ["#A9D1FF", "#0057FF", "#C4DFF6", "#4A9EFF"],
+        hoverBackgroundColor: ["#8ABAE3", "#0047D4", "#B0CCE8", "#3A8ADC"],
+        borderWidth: 0,
+      },
+    ],
+  });
   const [recommendation, setRecommendation] = useState("");
+  const token = localStorage.getItem("token");
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/staff/view-staff-dashboard", {
+          headers: {
+            Authorization: `${token}`, // Replace with your token
+          },
+        });
+
+        const data = response.data;
+        setRank(data.rank);
+
+        const labels = data.currentMonthPerformance.map((item) => item.parameter_name);
+        const percentages = data.currentMonthPerformance.map((item) => item.percentage);
+
+        setChartData({
+          labels,
+          datasets: [
+            {
+              data: percentages,
+              backgroundColor: ["#A9D1FF", "#0057FF", "#C4DFF6", "#4A9EFF"],
+              hoverBackgroundColor: ["#8ABAE3", "#0047D4", "#B0CCE8", "#3A8ADC"],
+              borderWidth: 0,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const handleSubmit = () => {
     alert(`Recommendation Submitted: ${recommendation}`);
     setRecommendation("");
   };
 
-  const chartData = {
-    labels: ["Productivity", "Quality of Work", "Team Work", "Time Management"],
-    datasets: [
-      {
-        data: [30, 77, 32, 67], // Percentage values
-        backgroundColor: ["#A9D1FF", "#0057FF", "#C4DFF6", "#4A9EFF"],
-        hoverBackgroundColor: ["#8ABAE3", "#0047D4", "#B0CCE8", "#3A8ADC"],
-        borderWidth: 0,
+  const chartOptions = {
+    cutout: "70%",
+    plugins: {
+      legend: {
+        display: false,
       },
-    ],
+    },
   };
+
+  const activities = [
+    { title: "General Text", description: "John Doe added as an Employee in Sales", time: "1 hr ago" },
+    { title: "General Text", description: "John Doe updated profile information", time: "2 hrs ago" },
+    { title: "General Text", description: "Jane Smith completed a project milestone", time: "4 hrs ago" },
+    { title: "General Text", description: "David Brown assigned a new task", time: "5 hrs ago" },
+  ];
+
   const feedbackList = [
     { text: "You are doing great just work on your time management", type: "positive" },
     { text: "You are doing well", type: "positive" },
@@ -39,23 +85,13 @@ const Dashboard = () => {
     { text: "You are doing great just work on your time management", type: "positive" },
   ];
 
-
-  const chartOptions = {
-    cutout: "70%", // Creates the inner space for the ring effect
-    plugins: {
-      legend: {
-        display: false, // Hide the default legend
-      },
-    },
-  };
-
   return (
     <div className="container mx-auto p-4">
       {/* Rank & Survey Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div className="p-2 bg-white rounded-lg border-l-4 border-[#335679]">
           <h2 className="text-2xl font-semibold mb-4 text-[#335679] ms-2">My Rank</h2>
-          <h2 className="text-2xl font-semibold mb-4 text-[#000000] ms-2">7th</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-[#000000] ms-2">{rank || "Loading..."}</h2>
         </div>
         <div className="p-2 bg-white rounded-lg border-l-4 border-[#1FB356]">
           <h2 className="text-2xl font-semibold mb-4 text-[#335679] ms-2">Survey</h2>
@@ -65,36 +101,28 @@ const Dashboard = () => {
 
       {/* Recent Activity & Doughnut Chart Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
-        {/* Doughnut Chart Card */}
         <div className="bg-white shadow-lg p-6 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Last Month Performance</h2>
-         <div className="flex flex-col lg:flex-row justify-between items-center mt-5">
-
-         <div className="mt-4">
-            <ul>
-              <li className="flex items-center mb-6">
-                <span className="w-3 h-3 bg-[#A9D1FF] rounded-full inline-block mr-6"></span> Productivity - 30%
-              </li>
-              <li className="flex items-center mb-6">
-                <span className="w-3 h-3 bg-[#0057FF] rounded-full inline-block mr-6"></span> Quality of Work - 77%
-              </li>
-              <li className="flex items-center mb-6">
-                <span className="w-3 h-3 bg-[#C4DFF6] rounded-full inline-block mr-6"></span> Team Work - 32%
-              </li>
-              <li className="flex items-center mb-6">
-                <span className="w-3 h-3 bg-[#4A9EFF] rounded-full inline-block mr-6"></span> Time Management - 67%
-              </li>
-            </ul>
+          <div className="flex flex-col lg:flex-row justify-between items-center mt-5">
+            <div className="mt-4">
+              <ul>
+                {chartData.labels.map((label, index) => (
+                  <li key={index} className="flex items-center mb-6">
+                    <span
+                      className="w-3 h-3 rounded-full inline-block mr-6"
+                      style={{ backgroundColor: chartData.datasets[0].backgroundColor[index] }}
+                    ></span>
+                    {label} - {chartData.datasets[0].data[index]}%
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="w-64 h-64">
+              <Doughnut data={chartData} options={chartOptions} />
+            </div>
           </div>
-         <div className="w-64 h-64">
-            <Doughnut data={chartData} options={chartOptions} />
-          </div>
-          {/* Legend */}
-       
-         </div>
         </div>
 
-        {/* Recent Activity Section */}
         <div className="bg-white shadow-lg p-6 rounded-lg w-full">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold">Recent Activity</h2>
@@ -120,40 +148,38 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        {/* Monthly Feedback */}
         <div className="p-6 bg-white shadow-lg rounded-lg border">
           <h2 className="text-lg font-bold mb-4">Monthly Feedback</h2>
           <ul>
             {feedbackList.map((feedback, index) => (
-              <li key={index} className={`text-lg mb-2 ${feedback.type === "positive" ? "text-green-600" : "text-red-600"}`}>
+              <li
+                key={index}
+                className={`text-lg mb-2 ${feedback.type === "positive" ? "text-green-600" : "text-red-600"}`}
+              >
                 • {feedback.text}
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Submit Recommendation */}
         <div className="p-6 bg-white shadow-lg rounded-lg border">
-  <h2 className="text-lg font-bold mb-4">Submit Recommendation</h2>
-  <textarea
-    className="w-full p-4 border rounded-md text-sm focus:outline-none focus:ring focus:ring-blue-200"
-    rows="4"
-    placeholder="Write your recommendation here.."
-    value={recommendation}
-    onChange={(e) => setRecommendation(e.target.value)}
-  ></textarea>
-
-  {/* Button aligned at the end */}
-  <div className="flex justify-end mt-3">
-    <button
-      className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
-      onClick={handleSubmit}
-    >
-      Submit
-    </button>
-  </div>
-</div>
-
+          <h2 className="text-lg font-bold mb-4">Submit Recommendation</h2>
+          <textarea
+            className="w-full p-4 border rounded-md text-sm focus:outline-none focus:ring focus:ring-blue-200"
+            rows="4"
+            placeholder="Write your recommendation here.."
+            value={recommendation}
+            onChange={(e) => setRecommendation(e.target.value)}
+          ></textarea>
+          <div className="flex justify-end mt-3">
+            <button
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -104,10 +104,16 @@ const ShowLineMangerDepartment = ({ isOpen, onClose, id }) => {
       }
     } catch (error) {
       console.error("Error assigning metric:", error);
-      toast.error("Error assigning metric. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    
+      if (error.response && error.response.status === 400) {
+        const errorMessage = error.response.data.message || "Bad Request.";
+        toast.error(errorMessage);
+        setAssignModalOpen(false);
+      } else {
+        toast.error("Error assigning metric. Please try again.");
+      }
+    } 
+    
   };
 
   return (

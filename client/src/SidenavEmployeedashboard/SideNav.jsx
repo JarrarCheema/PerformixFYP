@@ -62,9 +62,15 @@ function SideNav(props) {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
+    localStorage.removeItem("Managertoken");
+    localStorage.removeItem("Stafftoken");
+    localStorage.removeItem("email");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("profile_photo");
     navigate("/login");
   };
+  
   const handleProfile = () => {
     localStorage.removeItem("authToken");
     navigate("/employee/setting");

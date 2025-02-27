@@ -14,7 +14,9 @@ import OrgDetails from './Admin/OrgDetails';
 import Departments from './Admin/Departments';
 import SetMetrics from './Admin/SetMetrics';
 import StaffFeedback from './Admin/StaffFeedback';
-import Settings from './util/Settings';
+import AdminSettings from './Admin/Settings';
+import EmployeeSettings from './Employee/Settings';
+import ManagerSettings from './Manager/Settings';
 import DetailsStaffFeedback from './Admin/DetailsStaffFeedback';
 import LeaderBoard from './Admin/LeaderBoard';
 import Report from './Admin/Report';
@@ -36,8 +38,9 @@ import EmployeeLeaderBoard from './Employee/LeaderBoard';
 import CreateOrganiztaion from './Auth/CreateOrganiztion';
 import EmployeeNamePass from './Auth/EmployeeNamePass';
 import ManagerLeaderBorad from './Manager/LeaderBoard';
-import PrivateRoute from './util/PrivateRoute'; // Import PrivateRoute
-
+import AdminPrivateRoute from './routes/AdminPrivateRoute';
+import ManagerPrivateRoute from './routes/ManagerPrivateRoute';
+import EmployeePrivateRoute from './routes/EmployeePrivateRoute';
 function App() {
   return (
     <Router>
@@ -56,9 +59,9 @@ function App() {
         {/* Admin Dashboard Routes */}
         <Route 
           element={
-            <PrivateRoute>
+            <AdminPrivateRoute>
               <AdminDashboardSideNav />
-            </PrivateRoute>
+            </AdminPrivateRoute>
           }
         >
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -68,7 +71,7 @@ function App() {
           <Route path="/admin/setmetrics" element={<SetMetrics />} />
           <Route path="/admin/stafffeedback" element={<StaffFeedback />} />
           <Route path="/admin/notification" element={<Notification />} />
-          <Route path="/admin/setting" element={<Settings />} />
+          <Route path="/admin/setting" element={<AdminSettings />} />
           <Route path="/admin/leaderboard" element={<LeaderBoard />} />
           <Route path='/admin/report' element={<Report />} />
           <Route path="/admin/stafffeedback/:id" element={<DetailsStaffFeedback />} />
@@ -77,9 +80,9 @@ function App() {
         {/* Manager Dashboard Routes */}
         <Route 
           element={
-            <PrivateRoute>
+            <ManagerPrivateRoute>
               <SideMangerdashboard />
-            </PrivateRoute>
+            </ManagerPrivateRoute>
           }
         >
           <Route path='/manger/dashboard' element={<MangerDashboard />} />
@@ -89,23 +92,23 @@ function App() {
           <Route path='/manger/team' element={<Team />} />
           <Route path='/manger/feedback' element={<Feedback />} />
           <Route path='/manger/leaderboard' element={<ManagerLeaderBorad />} />
-          <Route path="/manger/setting" element={<Settings />} />
+          <Route path="/manger/setting" element={<ManagerSettings />} />
           <Route path='/manger/report' element={<ReportManager />} />
         </Route>
 
         {/* Employee Dashboard Routes */}
         <Route 
           element={
-            <PrivateRoute>
+            <EmployeePrivateRoute>
               <EmployeeDashboardSideNav />
-            </PrivateRoute>
+            </EmployeePrivateRoute>
           }
         >
           <Route path='/employee/dashboard' element={<EmployeeDashBoard />} />
           <Route path='/employee/report' element={<ReportEmployee />} />
           <Route path='/employee/goal' element={<Goal />} />
           <Route path='/employee/feedback' element={<FeedBack />} />
-          <Route path="/employee/setting" element={<Settings />} />
+          <Route path="/employee/setting" element={<EmployeeSettings />} />
           <Route path='/employee/leaderboard' element={<EmployeeLeaderBoard />} />
         </Route>
       </Routes>

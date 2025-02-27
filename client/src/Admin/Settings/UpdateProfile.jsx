@@ -5,7 +5,7 @@ import { Label, TextInput, Button } from "flowbite-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import img from "../assets/Image wrap.png";
+import img from "../../assets/Image wrap.png";
 
 
 const UpdateProfile = () => {

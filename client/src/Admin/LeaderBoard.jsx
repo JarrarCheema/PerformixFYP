@@ -32,6 +32,8 @@ function LeaderBoard() {
             },
           }
         );
+        console.log("Leaderboard Data:", response.data);
+        
 
         if (response.data.success) {
           const transformedData = response.data.data.flatMap((dept) =>

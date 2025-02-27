@@ -1,7 +1,7 @@
 
 import React from "react";
-import ChangePassword from "./ChangePassword";
-import UpdateProfile from "./UpdateProfile";
+import ChangePassword from "./Settings/ChangePassword";
+import UpdateProfile from "./Settings/UpdateProfile";
 
 const Settings = () => {
   return (
