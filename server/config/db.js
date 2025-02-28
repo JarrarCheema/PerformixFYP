@@ -179,6 +179,18 @@ const createTables = () => {
             CONSTRAINT fk_evaluation_employee_id FOREIGN KEY (employee_id) REFERENCES users(user_id) ON DELETE CASCADE,
             CONSTRAINT fk_evaluation_metric_id FOREIGN KEY (metric_id) REFERENCES performance_metrics(metric_id) ON DELETE CASCADE,
             CONSTRAINT fk_evaluation_parameter_id FOREIGN KEY (parameter_id) REFERENCES performance_parameters(parameter_id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS goals (
+            goal_id INT PRIMARY KEY AUTO_INCREMENT,
+            task_name VARCHAR(50),
+            completion_date VARCHAR(100),
+            task_description VARCHAR(255),
+            milestones TEXT,
+            attachement VARCHAR(255),
+            goal_status VARCHAR(50) DEFAULT 'Pending',
+            created_by INT,
+            created_on DATETIME DEFAULT NOW(),
+            CONSTRAINT fk_goal_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
         );`
     ];
 
