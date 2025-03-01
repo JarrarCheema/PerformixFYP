@@ -5,12 +5,15 @@ import { getSurveysForEmployee } from '../controllers/surveyControllers/getSurve
 import { getSingleSurveyDetails } from '../controllers/surveyControllers/getSingleSurveyDetails.js';
 import { submitSurveyResponse } from '../controllers/surveyControllers/submitSurveyResponse.js';
 import { getAdminSurveys } from '../controllers/surveyControllers/getAdminSurveys.js';
+import { getAdminSingleSurvey } from '../controllers/surveyControllers/getAdminSingleSurvey.js';
 
 const router = express.Router();
 
 router.post('/create-survey/:organization_id', verifyToken, createSurvey);
 
 router.get('/get-admin-surveys/:organization_id', verifyToken, getAdminSurveys);
+
+router.get('/get-admin-survey/:survey_id', verifyToken, getAdminSingleSurvey);
 
 router.get('/get-surveys', verifyToken, getSurveysForEmployee);
 
