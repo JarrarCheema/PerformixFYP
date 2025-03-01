@@ -191,6 +191,46 @@ const createTables = () => {
             created_by INT,
             created_on DATETIME DEFAULT NOW(),
             CONSTRAINT fk_goal_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS surveys (
+            survey_id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT,
+            created_by INT,
+            organization_id INT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_survey_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE,
+            CONSTRAINT fk_survey_organization FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS survey_questions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            survey_id INT NOT NULL,
+            question_text TEXT NOT NULL,
+            question_type ENUM('multiple_choice', 'text') NOT NULL,
+            FOREIGN KEY (survey_id) REFERENCES surveys(survey_id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS survey_options (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            question_id INT NOT NULL,
+            option_text VARCHAR(255) NOT NULL,
+            FOREIGN KEY (question_id) REFERENCES survey_questions(id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS survey_responses (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            survey_id INT NOT NULL,
+            employee_id INT NOT NULL,
+            submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (survey_id) REFERENCES surveys(survey_id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS survey_answers (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            response_id INT NOT NULL,
+            question_id INT NOT NULL,
+            option_id INT NULL,  -- NULL if it's a text answer
+            answer_text TEXT NULL,  -- NULL if it's a multiple-choice answer
+            FOREIGN KEY (response_id) REFERENCES survey_responses(id) ON DELETE CASCADE,
+            FOREIGN KEY (question_id) REFERENCES survey_questions(id) ON DELETE CASCADE,
+            FOREIGN KEY (option_id) REFERENCES survey_options(id) ON DELETE CASCADE
         );`
     ];
 
