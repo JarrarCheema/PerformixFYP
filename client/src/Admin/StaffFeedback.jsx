@@ -1,160 +1,173 @@
-import React, { useState } from "react";
-import { HiSearch, HiX, HiOutlineDownload } from "react-icons/hi"; // Importing search, close, and download icons
-import PaginatedTable from "../Flowbite/PaginatedTable";
-import { IoFilterSharp } from "react-icons/io5";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { TextInput, Textarea, Button, Card } from "flowbite-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
-const StaffFeedback = () => {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterDepartment, setFilterDepartment] = useState("");
+function StaffFeedback() {
+  const [isCreating, setIsCreating] = useState(false);
+  const [survey, setSurvey] = useState({
+    title: "",
+    description: "",
+    questions: [],
+  });
+  const [surveys, setSurveys] = useState([]);
+  const organization_id = localStorage.getItem("selectedOrganizationId");
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
-  // Sample employee data
-  const employees = [
-    { user: "ZAPTA Technologies", email: "info@zaptatech.com", department: "Sales", userRole: "Admin", designation: "Manager", phone: "+123 456 798" },
-    { user: "10 Pearls", email: "contact@10pearls.com", department: "Marketing", userRole: "Developer", designation: "Software Engineer", phone: "+987 654 321" },
-    { user: "MTBC", email: "support@mtbc.com", department: "IT", userRole: "HR", designation: "HR Manager", phone: "+111 222 333" },
-    { user: "Netsol Technologies", email: "info@netsoltech.com", department: "Finance", userRole: "Lead", designation: "Project Lead", phone: "+444 555 666" },
-    { user: "Systems Limited", email: "info@systemsltd.com", department: "Operations", userRole: "Designer", designation: "UI/UX Designer", phone: "+777 888 999" },
-  ];
+  useEffect(() => {
+    fetchSurveys();
+  }, []);
 
-  const columns = [
-    { header: "User", accessor: "user", key: "user" },
-    { header: "Email", accessor: "email", key: "email" },
-    { header: "Department", accessor: "department", key: "department" },
-    { header: "User Role", accessor: "userRole", key: "userRole" },
-    { header: "Designation", accessor: "designation", key: "designation" },
-    { header: "Phone", accessor: "phone", key: "phone" },
-    { header: "Action", accessor: "action", isAction: true, key: "action" },
-  ];
-
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Employee Data", 14, 10); // Add a title to the PDF
-
-    // Generate the table for the PDF
-    doc.autoTable({
-      head: [["User", "Email", "Department", "User Role", "Designation", "Phone"]],
-      body: employees.map((emp) => [
-        emp.user,
-        emp.email,
-        emp.department,
-        emp.userRole,
-        emp.designation,
-        emp.phone,
-      ]),
-      startY: 20, // Start position for the table
-    });
-
-    // Save the generated PDF
-    doc.save("EmployeeData.pdf");
-  };
-
-  const handleEdit = (employee) => {
-    setSelectedEmployee(employee);
-    setEditModalOpen(true);
-  };
-
-  const handleDetail = (employee) => {
-    navigate("/admin/stafffeedback/:id", { state: { employee } });
-  };
-
-  const handleDelete = async (employee) => {
-    const confirmDelete = window.confirm(`Are you sure you want to delete "${employee.user}"?`);
-
-    if (confirmDelete) {
-      console.log("Deleted employee:", employee);
-      // Add delete logic here
+  const fetchSurveys = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/survey/get-admin-surveys/${organization_id}`, {
+        headers: { Authorization: `${token}` },
+      });
+      if (response.data.success) {
+        setSurveys(response.data.surveys);
+      }
+    } catch (error) {
+      console.error("Error fetching surveys:", error);
     }
   };
 
-  const handleFilterDepartment = (event) => {
-    setFilterDepartment(event.target.value);
+  const addQuestion = () => {
+    setSurvey({
+      ...survey,
+      questions: [
+        ...survey.questions,
+        { question_text: "", question_type: "multiple_choice", options: ["", "", ""] },
+      ],
+    });
   };
 
-  // Filter employees by department and search term
-  const filteredData = employees.filter(
-    (emp) =>
-      emp.user.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (filterDepartment === "" || emp.department === filterDepartment)
-  );
+  const updateQuestion = (index, value) => {
+    const updatedQuestions = [...survey.questions];
+    updatedQuestions[index].question_text = value;
+    setSurvey({ ...survey, questions: updatedQuestions });
+  };
+
+  const updateOption = (qIndex, oIndex, value) => {
+    const updatedQuestions = [...survey.questions];
+    updatedQuestions[qIndex].options[oIndex] = value;
+    setSurvey({ ...survey, questions: updatedQuestions });
+  };
+
+  const createSurvey = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/survey/create-survey/${organization_id}`,
+        survey,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Survey Created Successfully!");
+        setIsCreating(false);
+        setSurvey({ title: "", description: "", questions: [] });
+        fetchSurveys();
+      } else {
+        alert("Failed to create survey");
+      }
+    } catch (error) {
+      console.error("Error creating survey:", error);
+    }
+  };
+
+  const handleSurveyClick = (surveyId) => {
+    navigate(`/admin/stafffeedback/${surveyId}`);
+  };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4 flex-col sm:flex-row">
-        <h2 className="hidden md:block text-lg font-semibold text-gray-700">Staff Feedback</h2>
-
-        {/* Right Side: Search, Filter, and Export Button */}
-        <div className="flex flex-col sm:flex-row items-center space-x-2 sm:space-x-2 mt-4 sm:mt-0">
-          {/* Search Input Field */}
-          <div className="relative w-full sm:w-90 mb-2 sm:mb-0">
-            <HiSearch className="absolute left-3 top-3 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search employee..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            {searchTerm && (
-              <HiX
-                className="absolute right-3 top-3 text-gray-500 cursor-pointer"
-                onClick={() => setSearchTerm("")}
+    <>   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 relative">
+     
+    {/* Create Survey Section */}
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Create Survey</h2>
+      {!isCreating ? (
+        <Button onClick={() => setIsCreating(true)} color="blue" className="w-full">
+          Add Survey
+        </Button>
+      ) : (
+        <div>
+          <TextInput
+            type="text"
+            placeholder="Survey Title"
+            className="mb-2"
+            value={survey.title}
+            onChange={(e) => setSurvey({ ...survey, title: e.target.value })}
+          />
+          <Textarea
+            placeholder="Survey Description"
+            className="mb-2"
+            value={survey.description}
+            onChange={(e) => setSurvey({ ...survey, description: e.target.value })}
+          />
+          <Button onClick={addQuestion} color="green" className="mb-4 w-full">
+            Add Question
+          </Button>
+          {survey.questions.map((q, qIndex) => (
+            <div key={qIndex} className="mb-4 p-3 rounded bg-gray-100">
+              <TextInput
+                type="text"
+                placeholder="Question text"
+                className="mb-2"
+                value={q.question_text}
+                onChange={(e) => updateQuestion(qIndex, e.target.value)}
               />
-            )}
-          </div>
-
-          {/* Filter Dropdown */}
-          {/* <div className="relative">
-  <IoFilterSharp className="absolute left-3 top-2.5 text-gray-500" size={20} />
-  <select
-    value={filterDepartment}
-    onChange={handleFilterDepartment}
-    className="w-full pl-10 border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-  >
-    <option value="">All Departments</option>
-    <option value="Sales">Sales</option>
-    <option value="Marketing">Marketing</option>
-    <option value="IT">IT</option>
-    <option value="Finance">Finance</option>
-    <option value="Operations">Operations</option>
-  </select>
-</div> */}
-
-
-          {/* Export Button */}
-          <button
-            className="bg-blue-500 w-2/3 text-white px-4 py-2 rounded-lg flex items-center space-x-1"
-            onClick={handleExportPDF}
-          >
-            <HiOutlineDownload className="text-white" size={20} />
-            <span>Export PDF</span>
-          </button>
+              <div className="flex flex-wrap gap-4">
+                {q.options.map((option, oIndex) => (
+                  <div key={oIndex} className="flex items-center space-x-2">
+                    <p>{oIndex + 1}:</p>
+                    <TextInput
+                      type="text"
+                      placeholder={`Option ${oIndex + 1}`}
+                      className="w-32"
+                      value={option}
+                      onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <Button onClick={createSurvey} color="blue" className="w-full">
+            Submit Survey
+          </Button>
         </div>
-      </div>
-
-      {/* Paginated Table Component */}
-      <PaginatedTable
-        data={filteredData}
-        columns={columns}
-        row={10}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onDetail={handleDetail}
-      />
-
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4 text-gray-500 text-sm">
-        <span className="font-bold text-md text-gray-800">
-          Showing <span className="text-blue-900">1-10</span> of <span className="text-blue-900">1000</span>
-        </span>
-      </div>
+      )}
     </div>
+
+    {/* Survey Feedback Section */}
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">Survey Feedback</h2>
+      {surveys.length > 0 ? (
+        <div className="grid grid-cols-1 gap-4">
+          {surveys.map((survey) => (
+            <Card key={survey.survey_id} className="cursor-pointer hover:shadow-lg" onClick={() => handleSurveyClick(survey.survey_id)}>
+              <h3 className="text-lg font-semibold">{survey.survey_title}</h3>
+              <p className="text-gray-600">Total Employees: {survey.total_employees}</p>
+              <p className="text-gray-600">Submitted: {survey.submitted_count}</p>
+              <p className="text-gray-600">Not Submitted: {survey.not_submitted_count}</p>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-600">No surveys available.</p>
+      )}
+    </div>
+  </div>
+  <ToastContainer position="top-right" autoClose={3000} />
+  </>
+ 
   );
-};
+}
 
 export default StaffFeedback;

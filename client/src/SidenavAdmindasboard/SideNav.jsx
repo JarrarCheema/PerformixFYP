@@ -52,11 +52,11 @@ const listItemData = [
     link: "/admin/setmetrics",
     icon: <img src={sicon} alt="Set Metrics" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
-  // {
-  //   label: "Staff Feedback",
-  //   link: "/admin/stafffeedback",
-  //   icon: <img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,  // Use image icon
-  // },
+  {
+    label: "Servey",
+    link: "/admin/stafffeedback",
+    icon: <img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,  // Use image icon
+  },
   {
     label: "Leader Borad",
     link: "/admin/leaderboard",

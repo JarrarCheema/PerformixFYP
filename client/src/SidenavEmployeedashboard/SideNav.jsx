@@ -38,11 +38,11 @@ const listItemData = [
     icon: <img src={oicon} alt="Org Details" style={{ width: "18px", height: "18px" }} />,
   },
  
-  // {
-  //   label: "Feedback",
-  //   link: "/employee/feedback",
-  //   icon: <img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,
-  // },
+  {
+    label: "Servey",
+    link: "/employee/feedback",
+    icon: <img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,
+  },
   {
     label: "Leaderboard",  // Fixed spelling
     link: "/employee/leaderboard",

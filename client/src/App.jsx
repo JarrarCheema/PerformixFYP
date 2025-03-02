@@ -17,7 +17,6 @@ import StaffFeedback from './Admin/StaffFeedback';
 import AdminSettings from './Admin/Settings';
 import EmployeeSettings from './Employee/Settings';
 import ManagerSettings from './Manager/Settings';
-import DetailsStaffFeedback from './Admin/DetailsStaffFeedback';
 import LeaderBoard from './Admin/LeaderBoard';
 import Report from './Admin/Report';
 import SideMangerdashboard from './SidenavManagerdashboard/Dashboard';
@@ -41,6 +40,9 @@ import ManagerLeaderBorad from './Manager/LeaderBoard';
 import AdminPrivateRoute from './routes/AdminPrivateRoute';
 import ManagerPrivateRoute from './routes/ManagerPrivateRoute';
 import EmployeePrivateRoute from './routes/EmployeePrivateRoute';
+import DetailsStaffFeedback from './Admin/DetailsStaffFeedback';
+import FillSurvey from './Employee/FillSurvey';
+import ManagerFillSurvey from './Manager/FillSurvey';
 function App() {
   return (
     <Router>
@@ -75,7 +77,7 @@ function App() {
           <Route path="/admin/leaderboard" element={<LeaderBoard />} />
           <Route path='/admin/report' element={<Report />} />
           <Route path="/admin/stafffeedback/:id" element={<DetailsStaffFeedback />} />
-        </Route>
+             </Route>
 
         {/* Manager Dashboard Routes */}
         <Route 
@@ -94,8 +96,10 @@ function App() {
           <Route path='/manger/leaderboard' element={<ManagerLeaderBorad />} />
           <Route path="/manger/setting" element={<ManagerSettings />} />
           <Route path='/manger/report' element={<ReportManager />} />
-        </Route>
+          <Route path='/manger/fill-survey/:id' element={<ManagerFillSurvey />} />
 
+        </Route>
+ 
         {/* Employee Dashboard Routes */}
         <Route 
           element={
@@ -110,6 +114,7 @@ function App() {
           <Route path='/employee/feedback' element={<FeedBack />} />
           <Route path="/employee/setting" element={<EmployeeSettings />} />
           <Route path='/employee/leaderboard' element={<EmployeeLeaderBoard />} />
+          <Route path='/employee/fill-survey/:id' element={<FillSurvey />} />
         </Route>
       </Routes>
     </Router>

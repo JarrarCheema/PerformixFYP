@@ -50,6 +50,7 @@ export default function GoalModal({ isOpen, onClose, newGoal, setNewGoal }) {
           },
         }
       );
+      
       console.log("Goal added successfully:", response.data);
       
       toast.success("Goal added successfully!");
