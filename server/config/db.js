@@ -231,6 +231,15 @@ const createTables = () => {
             FOREIGN KEY (response_id) REFERENCES survey_responses(response_id) ON DELETE CASCADE,
             FOREIGN KEY (question_id) REFERENCES survey_questions(question_id) ON DELETE CASCADE,
             FOREIGN KEY (option_id) REFERENCES survey_options(option_id) ON DELETE CASCADE
+        );`,
+        `CREATE TABLE IF NOT EXISTS recommendations(
+            recommendation_id INT PRIMARY KEY AUTO_INCREMENT,
+            recommendation_text TEXT,
+            employee_id INT,
+            admin_id INT,
+            created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (employee_id) REFERENCES users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (admin_id) REFERENCES users(user_id) ON DELETE CASCADE
         );`
     ];
 

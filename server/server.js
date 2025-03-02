@@ -13,6 +13,7 @@ import performanceParameterRoutes from './routes/performenceParameterRoutes.js';
 import lmRoutes from './routes/lineManagerRoutes.js';
 import staffRoutes from './routes/staffRoutes.js';
 import surveyRoutes from './routes/surveyRoutes.js';
+import recommendationRoutes from './routes/recommendationRoutes.js';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/department', departmentRoutes);
 app.use('/performance', performanceMetricRoutes);
 app.use('/performance', performanceParameterRoutes);
 app.use('/survey', surveyRoutes);
+app.use('/recommendation', recommendationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
