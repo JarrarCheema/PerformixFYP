@@ -37,7 +37,7 @@ export const getSurveysForEmployee = async (req, res) => {
             return res.status(400).send({ success: false, message: "No admin found for this employee" });
         }
 
-        // Fetch Surveys Created by This Admin
+        // Fetch Surveys Created by This Admin and Exclude Submitted Surveys
         const getSurveysQuery = `
             SELECT 
                 s.survey_id, 
@@ -47,15 +47,16 @@ export const getSurveysForEmployee = async (req, res) => {
                 u.full_name AS created_by_name,
                 s.organization_id, 
                 o.organization_name AS organization_name,
-                CONVERT_TZ(created_at, '+00:00', '+05:00') AS created_at
-            FROM surveys s JOIN users u ON s.created_by = u.user_id 
+                CONVERT_TZ(s.created_at, '+00:00', '+05:00') AS created_at
+            FROM surveys s 
+            JOIN users u ON s.created_by = u.user_id 
             JOIN organizations o ON o.organization_id = s.organization_id
-            WHERE s.created_by = ?;
+            LEFT JOIN survey_responses sr ON s.survey_id = sr.survey_id AND sr.employee_id = ?
+            WHERE s.created_by = ? AND sr.survey_id IS NULL;
         `;
 
-
         const surveys = await new Promise((resolve, reject) => {
-            db.query(getSurveysQuery, [adminId], (err, results) => {
+            db.query(getSurveysQuery, [userId, adminId], (err, results) => {
                 if (err) reject(err);
                 else resolve(results);
             });
