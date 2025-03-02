@@ -33,6 +33,7 @@ import { viewAdminDashboard } from "../controllers/userControllers/viewAdminDash
 import { viewReport } from "../controllers/leaderboardControllers/viewReport.js";
 import { viewLeaderboard } from "../controllers/leaderboardControllers/viewLeaderboard.js";
 import { addLMInDepartment } from "../controllers/userControllers/addLMInDepartment.js";
+import { getSelfEvaluations } from "../controllers/employeeControllers/getSelfEvaluations.js";
 
 router.get('/', getExampleData);
 
@@ -124,5 +125,7 @@ router.get('/get-emp-evaluation/:evaluation_id', verifyToken, getEmployeeEvaluat
 
 // ALL USERS ROUTES
 router.get('/get-active-users', verifyToken, getActiveUsers);
+
+router.get('/get-evaluations', verifyToken, getSelfEvaluations);
 
 export default router;
