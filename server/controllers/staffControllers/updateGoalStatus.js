@@ -1,10 +1,8 @@
 import db from '../../config/db.js';
 import jwt from 'jsonwebtoken';
 
-export const updateGoalStatus = async (req , res) => {
-
+export const updateGoalStatus = async (req, res) => {
     try {
-        
         const { goal_id } = req.params;
 
         let token = req.header("Authorization");
@@ -26,7 +24,6 @@ export const updateGoalStatus = async (req , res) => {
         }
 
         const checkIfStaff = `SELECT * FROM users WHERE user_id = ? AND is_active = 1 AND role_id = 3;`;
-
         const user = await new Promise((resolve, reject) => {
             db.query(checkIfStaff, [user_id], (err, results) => {
                 if (err) reject(err);
@@ -48,42 +45,54 @@ export const updateGoalStatus = async (req , res) => {
             });
         }
 
-
-        const updateStatusQuery = `
-            UPDATE goals SET goal_status = 'Completed' WHERE goal_id = ? AND created_by = ?;
-        `;
-
-        const result = await new Promise((resolve, reject) => {
-            db.query(updateStatusQuery, [goal_id, user_id], (err, results) => {
-                if(err){
-                    reject(err);
-                }
-                else{
-                    resolve(results.affectedRows);
-                }
+        // Fetch current goal status
+        const getStatusQuery = `SELECT goal_status FROM goals WHERE goal_id = ? AND created_by = ?;`;
+        const goal = await new Promise((resolve, reject) => {
+            db.query(getStatusQuery, [goal_id, user_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
             });
         });
 
-        if(result == 1 || result === '1' || result === 1){
-            return res.status(201).send({
-                success: true,
-                message: "Goal status updated successfully"
+        if (!goal.length) {
+            return res.status(404).send({
+                success: false,
+                message: "Goal not found or you are not the creator of this goal."
             });
         }
 
-        return res.status(400).send({
-            success: true,
-            message: "Goal status cannot be updated or you are not the creator of this goal"
+        const currentStatus = goal[0].goal_status;
+        let newStatus;
+
+        if (currentStatus === 'Pending') {
+            newStatus = 'In Progress';
+        } else if (currentStatus === 'In Progress') {
+            newStatus = 'Completed';
+        } else {
+            return res.status(400).send({
+                success: false,
+                message: "Goal is already completed and cannot be updated."
+            });
+        }
+
+        const updateStatusQuery = `UPDATE goals SET goal_status = ? WHERE goal_id = ? AND created_by = ?;`;
+        await new Promise((resolve, reject) => {
+            db.query(updateStatusQuery, [newStatus, goal_id, user_id], (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
         });
 
-
+        return res.status(200).send({
+            success: true,
+            message: `Goal status updated to '${newStatus}' successfully.`
+        });
     } catch (error) {
-        console.log("Error while completing goal status");
+        console.error("Error while updating goal status", error);
         return res.status(500).send({
             success: false,
             message: "Internal server error",
             error: error.message
         });
     }
-
-}
+};
