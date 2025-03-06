@@ -31,7 +31,7 @@ const SurveyResponsePopup = ({ isOpen, onClose, surveyId, userId }) => {
   };
 
   return (
-    <Modal show={isOpen} onClose={onClose}>
+    <Modal show={isOpen} onClose={onClose} className="bg-gray-100">
       <Modal.Header>Survey Response</Modal.Header>
       <Modal.Body>
         <div className="max-h-[400px] overflow-y-auto p-2">

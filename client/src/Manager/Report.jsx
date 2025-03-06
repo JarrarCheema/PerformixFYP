@@ -58,10 +58,10 @@ const Report = () => {
           setTd(formattedData);
           console.log("Formatted Data:", formattedData);
     
-          toast.success("Data fetched successfully!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
+          // toast.success("Data fetched successfully!", {
+          //   position: "top-right",
+          //   autoClose: 3000,
+          // });
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -147,7 +147,7 @@ const Report = () => {
     <div>
       <ToastContainer/>
       <div className="flex flex-col lg:flex-row justify-between items-center m-6 gap-4">
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* <div className="flex flex-col md:flex-row gap-4">
         <p className="text-gray-900 font-semibold flex items-center">
   Start Date:
   <Datepicker
@@ -165,8 +165,8 @@ const Report = () => {
 </p>
 
 
-        </div>
-
+        </div> */}
+<div></div>
         <div className="flex flex-col md:flex-row items-center gap-4">
           <button
             className="flex items-center px-4 py-2 bg-gray-100 text-black rounded-lg shadow-lg border border-gray-200 hover:bg-gray-100"
@@ -175,7 +175,7 @@ const Report = () => {
             <FaDownload className="mr-2" />
             Download
           </button>
-          <div className="p-2 bg-gray-200 rounded-lg flex gap-2">
+          {/* <div className="p-2 bg-gray-200 rounded-lg flex gap-2">
             <button
               className={`px-4 py-2 ${activeTab === "graph" ? "bg-gray-300" : "bg-gray-200"} text-gray-700 rounded-lg shadow hover:bg-gray-300`}
               onClick={() => setActiveTab("graph")}
@@ -188,7 +188,7 @@ const Report = () => {
             >
               Detail Report
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -212,7 +212,7 @@ const Report = () => {
               phone: "Phone",
               designation: "Designation",
               performance: "Performance Matrix",
-              action: "Action",
+              
             }}
             td={filteredData
               .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)

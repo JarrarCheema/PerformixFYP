@@ -1,38 +1,46 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import axios from "axios";
-import { Modal, Button, TextInput, Label } from "flowbite-react";
+import { Modal, Button, TextInput, Label, Spinner } from "flowbite-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const EditParameter = ({ isOpen, onClose, parameterData }) => {
-  const [formData, setFormData] = useState({
-    ParameterName: "",
-    Description: "",
-  });
-
   const token = localStorage.getItem("token");
 
+  // Validation Schema
+  const validationSchema = Yup.object({
+    ParameterName: Yup.string()
+      .trim()
+      .min(3, "Parameter name must be at least 3 characters")
+      .required("Parameter name is required"),
+    Description: Yup.string()
+      .trim()
+      .min(5, "Description must be at least 5 characters")
+      .required("Description is required"),
+  });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-  useEffect(() => {
-    if (parameterData) {
-      setFormData({
-        ParameterName: parameterData.parameter_name || "",
-        Description: parameterData.parameter_description || "",
-      });
+  // Handle Form Submission
+  const handleSubmit = async (values, { setSubmitting }) => {
+    if (!token) {
+      console.error("Token is missing.");
+      toast.error("Authentication token is missing!");
+      return;
     }
-  }, [parameterData]);
-  
-  const handleSubmit = async () => {
-    const parameter_id=parameterData.parameter_id;
+
+    if (!parameterData?.parameter_id) {
+      console.error("Invalid parameter data.");
+      toast.error("Invalid parameter details. Please try again.");
+      return;
+    }
+
     try {
       await axios.put(
-        `http://localhost:8080/performance/edit-parameter/${parameter_id}`,
+        `http://localhost:8080/performance/edit-parameter/${parameterData.parameter_id}`,
         {
-          parameter_name: formData.ParameterName,
-          parameter_description: formData.Description,
+          parameter_name: values.ParameterName,
+          parameter_description: values.Description,
         },
         {
           headers: {
@@ -41,84 +49,79 @@ const EditParameter = ({ isOpen, onClose, parameterData }) => {
           },
         }
       );
-  
+
       toast.success("Parameter updated successfully!", {
         position: "top-right",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
         theme: "colored",
       });
-      onClose(); // Close modal after success
+
+      setTimeout(() => onClose(), 1000); // Delay closing for better UX
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to update parameter. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      console.error("Error updating parameter:", error);
+      toast.error("Failed to update parameter. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
-  
- 
 
   return (
     <>
       <ToastContainer />
-      <Modal
-        show={isOpen}
-        size="lg"
-        onClose={onClose}
-        popup
-        className="backdrop:bg-black/50"
-      >
+      <Modal show={isOpen} size="lg" onClose={onClose} popup className="bg-gray-100">
         <Modal.Header />
         <Modal.Body>
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Edit Parameter
-          </h3>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <div>
-              <Label htmlFor="ParameterName" value="Parameter Name" />
-              <TextInput
-                id="ParameterName"
-                name="ParameterName"
-                placeholder="Enter parameter name"
-                value={formData.ParameterName}
-                required
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="Description" value="Description" />
-              <TextInput
-                id="Description"
-                name="Description"
-                placeholder="Enter description"
-                value={formData.Description}
-                required
-                onChange={handleChange}
-              />
-            </div>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Edit Parameter</h3>
 
-          {/* Buttons */}
-          <div className="flex justify-end mt-6 space-x-3">
-            <Button color="gray" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button color="blue" onClick={handleSubmit}>
-              Update
-            </Button>
-          </div>
+          <Formik
+            initialValues={{
+              ParameterName: parameterData?.parameter_name || "",
+              Description: parameterData?.parameter_description || "",
+            }}
+            enableReinitialize
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {/* Parameter Name */}
+                  <div>
+                    <Label htmlFor="ParameterName" value="Parameter Name" />
+                    <Field
+                      as={TextInput}
+                      id="ParameterName"
+                      name="ParameterName"
+                      placeholder="Enter parameter name"
+                    />
+                    <ErrorMessage name="ParameterName" component="div" className="text-red-500 text-sm" />
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <Label htmlFor="Description" value="Description" />
+                    <Field
+                      as={TextInput}
+                      id="Description"
+                      name="Description"
+                      placeholder="Enter description"
+                    />
+                    <ErrorMessage name="Description" component="div" className="text-red-500 text-sm" />
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end mt-6 space-x-3">
+                  <Button color="gray" onClick={onClose} type="button">
+                    Cancel
+                  </Button>
+                  <Button color="blue" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? <Spinner size="sm" /> : "Update"}
+                  </Button>
+                </div>
+              </Form>
+            )}
+          </Formik>
         </Modal.Body>
       </Modal>
     </>

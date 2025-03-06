@@ -49,7 +49,7 @@ const Department = () => {
             performance: "N/A", // Placeholder, adjust as needed
           }));
           setDepartments(fetchedData);
-          toast.success("Departments loaded successfully!");
+          // toast.success("Departments loaded successfully!");
         } else {
           setError("Failed to load departments.");
           toast.error("Failed to load departments.");
@@ -85,9 +85,11 @@ const Department = () => {
   };
 
   return (
-    <div className="p-3 bg-white rounded-md m-2">
+    <div className="p-6 bg-white rounded-lg m-2">
       <ToastContainer />
-
+<div className="flex justify-between items-start  m-4">
+  <p className="text-gray-900 font-bold dark:text-white text-2xl">Total Departments: {departments.length}</p>
+</div>
       {loading ? (
         <p>Loading...</p>
       ) : error ? (

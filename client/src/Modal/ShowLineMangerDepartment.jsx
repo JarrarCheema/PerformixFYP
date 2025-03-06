@@ -3,21 +3,17 @@ import axios from "axios";
 import { Modal, Button, Label, Select, TextInput } from "flowbite-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const ShowLineMangerDepartment = ({ isOpen, onClose, id }) => {
   const [lineManagers, setLineManagers] = useState([]);
   const [selectedLM, setSelectedLM] = useState(null);
-  const [metricData, setMetricData] = useState({
-    metric_id: "",
-    department_id: "",
-  });
-  const [loading, setLoading] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
 
   const organizationId = localStorage.getItem("selectedOrganizationId");
   const organization_id = organizationId;
 
-  // Fetch Line Managers and Departments
   useEffect(() => {
     const fetchLineManagers = async () => {
       const token = localStorage.getItem("token");
@@ -26,9 +22,7 @@ const ShowLineMangerDepartment = ({ isOpen, onClose, id }) => {
         const response = await axios.get(
           `http://localhost:8080/user/get-all-LMs/${organization_id}`,
           {
-            headers: {
-              Authorization: `${token}`,
-            },
+            headers: { Authorization: `${token}` },
           }
         );
 
@@ -48,78 +42,16 @@ const ShowLineMangerDepartment = ({ isOpen, onClose, id }) => {
     }
   }, [isOpen, id]);
 
-  // Handle input change for metric form
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setMetricData({
-      ...metricData,
-      [name]: value,
-    });
-  };
-
   // Open Assign Metric Modal
   const openAssignModal = (lm) => {
-    console.log("Selected Line Manager:", lm);
-  
     setSelectedLM(lm);
-    setMetricData({
-      metric_id: id.metrics || "",
-      department_id: lm.dept_ids[0].toString() || "", // Convert to string for single value
-    });
     setAssignModalOpen(true);
-  };
-  
-
-  // Handle Metric Assignment
-  const handleAssignMetric = async () => {
-    setLoading(true);
-
-    const token = localStorage.getItem("token");
-    if (!token || !selectedLM) {
-      toast.error("Required data missing.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        `http://localhost:8080/performance/assign-metric`,
-        {
-          metric_id: id.id,
-          line_manager_id: selectedLM.user_id,
-          department_id: metricData.department_id,
-        },
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Metric assigned successfully!");
-        setAssignModalOpen(false);
-      } else {
-        toast.error("Failed to assign metric. Try again.");
-      }
-    } catch (error) {
-      console.error("Error assigning metric:", error);
-    
-      if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.message || "Bad Request.";
-        toast.error(errorMessage);
-        setAssignModalOpen(false);
-      } else {
-        toast.error("Error assigning metric. Please try again.");
-      }
-    } 
-    
   };
 
   return (
     <>
       <ToastContainer />
-      <Modal show={isOpen} onClose={onClose} popup={true} size="lg">
+      <Modal show={isOpen} onClose={onClose} popup={true} size="lg" className="bg-gray-100">
         <Modal.Header className="text-center">Line Managers</Modal.Header>
         <Modal.Body>
           {lineManagers.length > 0 ? (
@@ -163,61 +95,95 @@ const ShowLineMangerDepartment = ({ isOpen, onClose, id }) => {
       </Modal>
 
       {/* Assign Metric Modal */}
-      <Modal
-        show={assignModalOpen}
-        onClose={() => setAssignModalOpen(false)}
-        popup={true}
-        size="md"
-      >
+      <Modal show={assignModalOpen} onClose={() => setAssignModalOpen(false)} popup={true} size="md" className="bg-gray-100">
         <Modal.Header className="text-center">Assign Metric</Modal.Header>
         <Modal.Body>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="metric_id" value="Metric ID" />
-              <TextInput
-                id="metric_id"
-                name="metric_id"
-                placeholder="Enter Metric ID"
-                required
-                onChange={handleChange}
-                value={metricData.metric_id}
-              />
-            </div>
-            <div>
-              <Label htmlFor="department_id" value="Department" />
-              <Select
-                id="department_id"
-                name="department_id"
-                required
-                onChange={handleChange}
-                value={metricData.department_id}
-              >
-                {selectedLM &&
-                  selectedLM.department_ids.map((deptId, index) => (
-                    <option key={index} value={deptId}>
-                      {selectedLM.departments[index]}
-                    </option>
-                  ))}
-              </Select>
-            </div>
-          </div>
+          <Formik
+            initialValues={{
+              metric_id: id || "",
+              department_id: "",
+            }}
+            validationSchema={Yup.object({
+              metric_id: Yup.string().required("Metric ID is required"),
+              department_id: Yup.string().required("Please select a department"),
+            })}
+            onSubmit={async (values, { setSubmitting }) => {
+              console.log("Submitting Form with values:", values);
 
-          <div className="flex justify-end mt-6 space-x-3">
-            <Button
-              color="gray"
-              onClick={() => setAssignModalOpen(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
-              color="blue"
-              onClick={handleAssignMetric}
-              disabled={loading}
-            >
-              {loading ? "Assigning..." : "Assign Metric"}
-            </Button>
-          </div>
+              const token = localStorage.getItem("token");
+              if (!token || !selectedLM) {
+                toast.error("Required data missing.");
+                setSubmitting(false);
+                return;
+              }
+
+              try {
+                const response = await axios.post(
+                  `http://localhost:8080/performance/assign-metric`,
+                  {
+                    metric_id: values.metric_id,
+                    line_manager_id: selectedLM.user_id,
+                    department_id: values.department_id,
+                  },
+                  { headers: { Authorization: `${token}` } }
+                );
+
+                if (response.data.success) {
+                  toast.success("Metric assigned successfully!");
+                  setAssignModalOpen(false);
+                } else {
+                  toast.error("Failed to assign metric. Try again.");
+                }
+              } catch (error) {
+                console.error("Error assigning metric:", error);
+                toast.error("Error assigning metric. Please try again.");
+              }
+
+              setSubmitting(false);
+            }}
+          >
+            {({ isSubmitting }) => (
+              <Form className="space-y-4">
+                {/* Metric ID Input */}
+                <div>
+                  <Label htmlFor="metric_id" value="Metric ID" />
+                  <Field
+                    as={TextInput}
+                    id="metric_id"
+                    name="metric_id"
+                    placeholder="Enter Metric ID"
+                    required
+                  />
+                  <ErrorMessage name="metric_id" component="p" className="text-red-500 text-sm mt-1" />
+                </div>
+
+                {/* Department Select Dropdown */}
+                <div>
+                  <Label htmlFor="department_id" value="Department" />
+                  <Field as={Select} id="department_id" name="department_id" required>
+                    <option value="">Select Department</option>
+                    {selectedLM &&
+                      selectedLM.dept_ids.map((deptId, index) => (
+                        <option key={index} value={deptId}>
+                          {selectedLM.departments[index]}
+                        </option>
+                      ))}
+                  </Field>
+                  <ErrorMessage name="department_id" component="p" className="text-red-500 text-sm mt-1" />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end mt-6 space-x-3">
+                  <Button color="gray" onClick={() => setAssignModalOpen(false)} disabled={isSubmitting}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" color="blue" disabled={isSubmitting}>
+                    {isSubmitting ? "Assigning..." : "Assign Metric"}
+                  </Button>
+                </div>
+              </Form>
+            )}
+          </Formik>
         </Modal.Body>
       </Modal>
     </>

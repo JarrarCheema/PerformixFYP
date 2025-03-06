@@ -35,7 +35,7 @@ const AddOrganizationModal = ({ isOpen, onClose }) => {
       .required("Address is required"),
 
     website: Yup.string()
-      .url("Invalid URL format")
+      
       .required("Website URL is required"),
   });
 

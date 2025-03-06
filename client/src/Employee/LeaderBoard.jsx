@@ -27,7 +27,7 @@ function LeaderBoard() {
         setLeaderboardData(leaderboard);
         console.log("Leaderboard Data:", leaderboard);
         
-        toast.success("Leaderboard data loaded successfully!");
+        // toast.success("Leaderboard data loaded successfully!");
       } catch (error) {
         console.error("Error fetching leaderboard data:", error);
         toast.error("Failed to load leaderboard data.");

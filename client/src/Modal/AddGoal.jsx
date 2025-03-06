@@ -61,7 +61,7 @@ export default function GoalModal({ isOpen, onClose, newGoal, setNewGoal }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[9999]">
+    <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center z-[9999]">
       <div className="bg-white p-6 rounded-lg shadow-lg w-[500px] max-h-[89vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Add New Goal</h3>

@@ -141,7 +141,7 @@ const Report = () => {
     <div>
       <ToastContainer/>
       <div className="flex flex-col lg:flex-row justify-between items-center m-6 gap-4">
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* <div className="flex flex-col md:flex-row gap-4">
         <p className="text-gray-900 font-semibold flex items-center">
   Start Date:
   <Datepicker
@@ -159,8 +159,8 @@ const Report = () => {
 </p>
 
 
-        </div>
-
+        </div> */}
+<div></div>
         <div className="flex flex-col md:flex-row items-center gap-4">
           <button
             className="flex items-center px-4 py-2 bg-gray-100 text-black rounded-lg shadow-lg border border-gray-200 hover:bg-gray-100"
@@ -169,7 +169,7 @@ const Report = () => {
             <FaDownload className="mr-2" />
             Download
           </button>
-          <div className="p-2 bg-gray-200 rounded-lg flex gap-2">
+          {/* <div className="p-2 bg-gray-200 rounded-lg flex gap-2">
             <button
               className={`px-4 py-2 ${activeTab === "graph" ? "bg-gray-300" : "bg-gray-200"} text-gray-700 rounded-lg shadow hover:bg-gray-300`}
               onClick={() => setActiveTab("graph")}
@@ -182,7 +182,7 @@ const Report = () => {
             >
               Detail Report
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -242,14 +242,15 @@ const Report = () => {
               styleTableTh={{ fontWeight: "bold", color: "#333", fontSize: "16px" }}
               styleTableTbody={{ backgroundColor: "#FFFFFF" }}
               cellStyles={{
-                department: { fontWeight: "500", color: "#555", fontSize: "18px" },
-                name: { fontSize: "19px", color: "#444" },
-                email: { fontSize: "18px", color: "#444" },
-                phone: { fontSize: "18px", color: "#444" },
-                designation: { fontSize: "18px", color: "#444" },
-                performance: { fontSize: "18px", color: "#444" },
-                action: { fontSize: "18px", color: "#444" },
+                department: { fontWeight: "500", color: "#555", fontSize: "15px", fontFamily: "Poppins, sans-serif" },
+                name: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+                email: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+                phone: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+                designation: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+                performance: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+                action: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
               }}
+              
               rowStyles={{ backgroundColor: "#Ffffff", fontSize: "24px", color: "#333" }}
        
           />

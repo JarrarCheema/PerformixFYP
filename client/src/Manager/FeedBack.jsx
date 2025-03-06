@@ -23,7 +23,7 @@ export default function FeedBack() {
 
       if (response.data.success) {
         setSurveys(response.data.surveys);
-        toast.success("Surveys fetched successfully!");
+        // toast.success("Surveys fetched successfully!");
       } else {
         toast.error(response.data.message || "Failed to fetch surveys");
       }

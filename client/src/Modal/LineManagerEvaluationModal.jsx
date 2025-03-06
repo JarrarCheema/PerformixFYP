@@ -55,7 +55,7 @@ const LineManagerEvaluationModal = ({ isOpen, onClose, employeeId }) => {
 
   return (
     <>
-      <Modal show={isOpen} onClose={onClose} size="lg" className="z-[9999]">
+      <Modal show={isOpen} onClose={onClose} size="lg" className="z-[9999] bg-gray-100">
         <Modal.Header>Evaluate Employee</Modal.Header>
         <Modal.Body>
           <div className="space-y-6">

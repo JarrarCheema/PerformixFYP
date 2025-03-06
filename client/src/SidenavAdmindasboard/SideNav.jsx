@@ -8,14 +8,11 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import { NavLink, useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { BiFoodMenu } from "react-icons/bi";
-import { GiWineBottle } from "react-icons/gi";
-import { BiTask } from "react-icons/bi";
-import { CgMenuBoxed } from "react-icons/cg";
-import { ImInsertTemplate } from "react-icons/im";
+import React,{useEffect , useState} from "react";
 import { Select } from "flowbite-react";
 import { IoSettingsOutline } from "react-icons/io5";
 import logo from '../assets/Vector.png';
+import axios from "axios";
 import dicon from '../assets/icon.png';
 import oicon from '../assets/building-07.png'
 import deicon from '../assets/building-03.png'
@@ -71,9 +68,34 @@ const listItemData = [
 
 
 function SideNav(props) {
+     const [organizations, setOrganizations] = useState([]);
   const { window, mobileOpen, handleDrawerToggle } = props;
   const navigate = useNavigate();
+  // Retrieve the token from localStorage
+  const token = localStorage.getItem("token");
+console.log('token ', token);
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/organization/get-organizations", {
+          headers: {
+            Authorization: `${token}`, // Send token in Authorization header
+          },
+        });
+        console.log('response', response);
+        
+        if (response.data.success) {
+          setOrganizations(response.data.organizations); // Set organizations in state
+        } else {
+          console.error("Failed to fetch organizations:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
 
+    fetchOrganizations();
+  }, [token]); 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("Managertoken");
@@ -83,6 +105,33 @@ function SideNav(props) {
     localStorage.removeItem("profile_photo");
     navigate("/login");
   };
+  const [selectedOrganization, setSelectedOrganization] = useState(
+    localStorage.getItem("selectedOrganization") || ""
+  );
+  
+  const handleNextClick = (e) => {
+    const selectedOrgName = e.target.value;
+    setSelectedOrganization(selectedOrgName);
+  
+    const selectedOrg = organizations.find(
+      (org) => org.organization_name === selectedOrgName
+    );
+  
+    if (selectedOrg) {
+      localStorage.setItem("selectedOrganizationId", selectedOrg.organization_id);
+      localStorage.setItem("selectedOrganization", selectedOrgName); // ✅ Save Name
+      console.log("Selected Organization ID:", selectedOrg.organization_id);
+  
+      window.location.reload(); // ✅ Reload Page
+    } else {
+      localStorage.removeItem("selectedOrganizationId");
+      localStorage.removeItem("selectedOrganization");
+      console.log("No organization selected");
+       // Reload the page
+  window.location.reload();
+    }
+  };
+  
   
   const handleProfile = () => {
     localStorage.removeItem("authToken");
@@ -128,15 +177,31 @@ function SideNav(props) {
       </div>
 
       {/* Select input */}
-      {/* <div className="mb-4 mx-2">
-        <Select id="organization" required className="w-full">
-          <option value="">Select an organization</option>
-          <option value="Zapta">Zapta</option>
-          <option value="Vsynch">Vsynch</option>
-          <option value="Organix">Organix</option>
+      <div className="mb-2 mx-2">
+      <Select
+  id="organization"
+  required
+  className="w-full"
+  value={selectedOrganization}
+  onChange={handleNextClick} // ✅ Fix: This will now get the event (e)
+  style={{
+    backgroundColor: "#f3f4f6",
+    border: "1px solid #d1d5db",
+    borderRadius: "8px",
+    padding: "8px",
+    fontSize: "14px",
+    color: "#374151",
+  }}
+>
+  <option value="">Select an organization</option>
+  {organizations.map((org) => (
+    <option key={org.organization_id} value={org.organization_name}>
+      {org.organization_name}
+    </option>
+  ))}
+</Select>
 
-        </Select>
-      </div> */}
+      </div>
 
       {/* Search Input */}
       {/* <form class="max-w-md mx-2">

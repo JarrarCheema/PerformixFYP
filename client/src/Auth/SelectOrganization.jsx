@@ -57,6 +57,8 @@ console.log('token ', token);
       (org) => org.organization_name === selectedOrganization
     );
   
+    console.log("Selected Organization:", selectedOrg);
+    
     // Save the organization ID in localStorage
     if (selectedOrg) {
       localStorage.setItem("selectedOrganizationId", selectedOrg.organization_id);

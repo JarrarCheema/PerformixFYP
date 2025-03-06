@@ -1,29 +1,27 @@
-
 import React, { useState, useEffect } from "react";
 import { Modal, Button, TextInput, Label } from "flowbite-react";
-import axios from "axios"; // Import axios for making API requests
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 const EditDepartmentModal = ({ isOpen, onClose, departmentData }) => {
   console.log("Data:", departmentData);
 
   // Initialize formData with department data
   const [formData, setFormData] = useState({
-    deptId: departmentData?.dept_id || "", // dept_id field
-    departmentName: departmentData?.department_name || "", // Department Name field
+    deptId: departmentData?.dept_id || "",
+    departmentName: departmentData?.department_name || "",
     departmentId: departmentData?.department_id || "",
   });
 
-  const token = localStorage.getItem("token"); // Get the token from localStorage
+  const [errors, setErrors] = useState({}); // State for validation errors
 
-  // Check for token in console
-  console.log('token :', token);
+  const token = localStorage.getItem("token");
 
-  // Update formData when departmentData prop changes
   useEffect(() => {
     if (departmentData) {
       setFormData({
-        deptId: departmentData.dept_id, // Use dept_id from the department data
+        deptId: departmentData.dept_id,
         departmentName: departmentData.department_name,
         departmentId: departmentData.department_id,
       });
@@ -32,54 +30,57 @@ const EditDepartmentModal = ({ isOpen, onClose, departmentData }) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" }); // Clear error when user types
   };
 
-  // Handle Save logic - Send data to the API to update the department
+  // Validation Function
+  const validate = () => {
+    let newErrors = {};
+
+    if (!formData.departmentName.trim()) {
+      newErrors.departmentName = "Department name is required.";
+    } else if (formData.departmentName.length < 3) {
+      newErrors.departmentName = "Department name must be at least 3 characters.";
+    } else if (formData.departmentName.length > 50) {
+      newErrors.departmentName = "Department name must be less than 50 characters.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Returns true if no errors
+  };
+
+  // Handle Save logic
   const handleSave = async () => {
+    if (!validate()) return; // Prevent API call if validation fails
+
     try {
       const response = await axios.put(
-        `http://localhost:8080/department/update-department/${formData.deptId}`, // Use deptId in the URL
-        {
-          department_name: formData.departmentName,
-        },
-        {
-          headers: {
-            Authorization: `${token}`, // Send token in the Authorization header
-          },
-        }
+        `http://localhost:8080/department/update-department/${formData.deptId}`,
+        { department_name: formData.departmentName },
+        { headers: { Authorization: `${token}` } }
       );
-      
+
       if (response.data.success) {
-        console.log("Department updated successfully:", response.data);
-        toast.success("Department updated successfully!", {
-          position: "top-right",
-          autoClose: 1500,
-        })
-        setTimeout(() => onClose(), 1500); // Close the modal after successful update
+        toast.success("Department updated successfully!", { position: "top-right", autoClose: 1500 });
+        setTimeout(() => onClose(), 1500);
       } else {
-        console.error("Failed to update department:", response.data.message);
+        toast.error("Failed to update department.");
       }
     } catch (error) {
       console.error("Error updating department:", error);
+      toast.error("Error updating department.");
     }
   };
 
   return (
-    <Modal show={isOpen} size="lg" onClose={onClose} popup className="backdrop:bg-black/50">
+    <Modal show={isOpen} size="lg" onClose={onClose} popup className="bg-gray-100">
       <Modal.Header />
       <Modal.Body>
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Edit Department</h3>
         <div className="grid gap-4 lg:grid-cols-2">
           <div>
             <Label htmlFor="deptId" value="Department ID" />
-            <TextInput
-              id="deptId"
-              name="deptId"
-              value={formData.departmentId}
-              placeholder="Department ID"
-              required
-              onChange={handleChange} // Allow changing department ID
-            />
+            <TextInput id="deptId" name="deptId" value={formData.departmentId} readOnly />
           </div>
 
           <div>
@@ -92,10 +93,12 @@ const EditDepartmentModal = ({ isOpen, onClose, departmentData }) => {
               required
               onChange={handleChange}
             />
+            {errors.departmentName && (
+              <p className="text-red-500 text-sm mt-1">{errors.departmentName}</p>
+            )}
           </div>
         </div>
 
-        {/* Buttons */}
         <div className="flex justify-end mt-6 space-x-3">
           <Button color="gray" onClick={onClose}>Cancel</Button>
           <Button color="blue" onClick={handleSave}>Save</Button>

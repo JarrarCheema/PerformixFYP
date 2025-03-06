@@ -19,7 +19,7 @@ const useDashboardData = () => {
         setRank(response.data.rank);
 
 
-        toast.success("Dashboard data loaded successfully!");
+        // toast.success("Dashboard data loaded successfully!");
       } catch (error) {
         toast.error("Error fetching dashboard data.");
         console.error("Error fetching dashboard data:", error);
@@ -63,7 +63,7 @@ const useDashboardData = () => {
       
           setFeedbackList(feedbacks);
       
-          toast.success("Evaluation data fetched successfully!");
+          // toast.success("Evaluation data fetched successfully!");
         } catch (error) {
           toast.error("Error fetching evaluation data.");
           console.error("Error fetching evaluation data:", error);

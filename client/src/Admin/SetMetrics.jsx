@@ -14,6 +14,7 @@ import ShowLineMangerDepartment from "../Modal/ShowLineMangerDepartment";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 const SetMetrics = () => {
   const [isAddMetricsOpen, setIsAddMetricsOpen] = useState(false);
   const [isEditMetricsOpen, setIsEditMetricsOpen] = useState(false);
@@ -25,18 +26,16 @@ const SetMetrics = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentRowId, setCurrentRowId] = useState(null);
   const [metricsData, setMetricsData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
-  const [anchorEl2, setAnchorEl2] = useState(null);
   const [isShowLineMangerOpen, setIsShowLineMangerOpen] = useState(false);
   const [selectedMetricId, setSelectedMetricId] = useState(null);
 
   const fetchMetrics = async () => {
-    const token = localStorage.getItem("token");
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.get("http://localhost:8080/performance/get-metrics", {
         headers: { Authorization: `${token}` },
       });
+
       if (response.data.success) {
         const formattedData = response.data.metrics.map((metric) => ({
           id: metric.metric_id,
@@ -52,7 +51,7 @@ const SetMetrics = () => {
 
   useEffect(() => {
     fetchMetrics();
-  }, [1500]);
+  }, []);
 
   const handleMenuOpen = (event, rowId) => {
     setAnchorEl(event.currentTarget);
@@ -64,20 +63,20 @@ const SetMetrics = () => {
     setCurrentRowId(null);
   };
 
-  const handleEdit = async () => {
+  const handleEdit = () => {
     const selected = metricsData.find((row) => row.id === currentRowId);
     setSelectedMetric(selected);
     setIsEditMetricsOpen(true);
     handleMenuClose();
-    fetchMetrics();
   };
 
   const handleDelete = async (id) => {
-    const token = localStorage.getItem("token");
     try {
+      const token = localStorage.getItem("token");
       const response = await axios.delete(`http://localhost:8080/performance/delete-metric/${id}`, {
         headers: { Authorization: `${token}` },
       });
+
       if (response.data.success) {
         toast.success("Metric deleted successfully!", { position: "top-right", autoClose: 3000 });
         fetchMetrics();
@@ -86,6 +85,23 @@ const SetMetrics = () => {
       console.error("Error deleting metric:", error);
     }
     handleMenuClose();
+  };
+
+  const handleViewParameter = (row) => {
+
+    
+    setSelectedMetric(row);
+    setIsViewParameterOpen(true);
+    handleMenuClose();
+  };
+
+  const handleAddParameter = (row) => {
+    setSelectedMetric(row);
+    setIsAddParameterOpen(true);
+  };
+  const handleAssignMetric = (row) => {
+    setSelectedMetricId(row.id);
+    setIsShowLineMangerOpen(true);
   };
 
   return (
@@ -97,21 +113,23 @@ const SetMetrics = () => {
           + Add Metrics
         </button>
       </div>
+
       <TableMuiCustom
         th={{ metrics: "Performance Metrics", parameter: "Parameter", action: "Action" }}
         td={metricsData.map((row) => ({
           ...row,
           parameter: (
             <div className="flex gap-4 text-2xl text-gray-600 font-bold">
-              <BsPlusCircle title="Add Parameter" onClick={() => setIsAddParameterOpen(true)} />
-              <BsEye title="View Parameter" onClick={() => setIsViewParameterOpen(true)} />
+              <BsPlusCircle title="Add Parameter" onClick={() => handleAddParameter(row)} />
+              <BsEye title="View Parameter" onClick={()=>handleViewParameter( row)} />
             </div>
           ),
           action: (
             <>
               <Menu anchorEl={anchorEl} open={Boolean(anchorEl) && currentRowId === row.id} onClose={handleMenuClose}>
-                <MenuItem onClick={() => handleEdit(row)}>Edit Metrics</MenuItem>
+                <MenuItem onClick={handleEdit}>Edit Metrics</MenuItem>
                 <MenuItem onClick={() => handleDelete(row.id)}>Delete</MenuItem>
+                <MenuItem onClick={() => handleAssignMetric(row)}>Assign Metrics</MenuItem>
               </Menu>
               <FiMoreVertical className="text-2xl cursor-pointer" onClick={(event) => handleMenuOpen(event, row.id)} />
             </>
@@ -132,7 +150,8 @@ const SetMetrics = () => {
       {isEditMetricsOpen && <EditMetrics isOpen={isEditMetricsOpen} onClose={() => setIsEditMetricsOpen(false)} fetchMetrics={fetchMetrics} departmentData={selectedMetric} />}
       {isAddParameterOpen && <AddParameter isOpen={isAddParameterOpen} onClose={() => setIsAddParameterOpen(false)} id={selectedMetric?.id} fetchMetrics={fetchMetrics} />}
       {isEditParameterOpen && <EditParameter isOpen={isEditParameterOpen} onClose={() => setIsEditParameterOpen(false)} parameterData={selectedParameter} fetchMetrics={fetchMetrics} />}
-      {isViewParameterOpen && <ViewParameter isOpen={isViewParameterOpen} onClose={() => setIsViewParameterOpen(false)} parameterData={selectedParameter} />}
+      {isViewParameterOpen && <ViewParameter isOpen={isViewParameterOpen} onClose={() => setIsViewParameterOpen(false)} parameterData={selectedMetric} />}
+
       <ShowLineMangerDepartment isOpen={isShowLineMangerOpen} onClose={() => setIsShowLineMangerOpen(false)} id={selectedMetricId} />
     </div>
   );

@@ -7,6 +7,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ViewParameter = ({ isOpen, onClose, parameterData }) => {
+  console.log("parameterData:", parameterData);
+  
   const [parameters, setParameters] = useState([]);
   const [metric_id, setMetricId] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);

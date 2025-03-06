@@ -39,10 +39,7 @@ const UpdateProfile = () => {
           setUserId(user.user_id); // Store user ID for later use
 // setAddress(user.address);
           console.log("User Data:", user);
-          toast.success("User data fetched successfully!", {
-            position: "top-right",
-            autoClose: 3000,
-          })
+        
       // Constructing image URL safely
 if (user.profile_photo) {
   const filePathArray = user.profile_photo.split("\\");
@@ -50,6 +47,7 @@ if (user.profile_photo) {
   setPreviewPhoto(
     `http://localhost:8080/uploads/profilePicture/${fileName}`
   );
+
 } else {
   // If profile photo is null, set a default image
   setPreviewPhoto(img);
@@ -85,6 +83,7 @@ if (user.profile_photo) {
             "Content-Type": "multipart/form-data",
           },
         }
+        
       );
 console.log("Profile Update Response:", response.data);
 

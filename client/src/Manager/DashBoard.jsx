@@ -70,7 +70,7 @@ export default function Dashboard() {
               performanceScore: emp.performance_score,
             }))
           );
-          toast.success("Dashboard data fetched successfully!");
+          // toast.success("Dashboard data fetched successfully!");
         } else {
           toast.error(response.data.message || "Failed to fetch dashboard data.");
         }

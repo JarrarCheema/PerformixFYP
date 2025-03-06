@@ -45,7 +45,7 @@ function LeaderBoard() {
           const departmentTabs = response.data.data.map((dept) => dept.department_name);
           setTabs(["All departments", ...new Set(departmentTabs)]);
 
-          toast.success("Leaderboard fetched successfully!");
+          // toast.success("Leaderboard fetched successfully!");
         } else {
           setError("Failed to load leaderboard.");
           toast.error("Failed to load leaderboard.");
