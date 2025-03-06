@@ -46,7 +46,7 @@ function LeaderBoard() {
           );
           setLeaderboardData(transformedData);
           setFilteredData(transformedData);
-          toast.success("Leaderboard fetched successfully!");
+          // toast.success("Leaderboard fetched successfully!");
         } else {
           toast.error("Failed to fetch leaderboard data.");
         }

@@ -9,6 +9,8 @@ const isAdminAuthenticated = () => {
 };
 
 const AdminPrivateRoute = ({ children }) => {
+  
+  
   return isAdminAuthenticated() ? children : <Navigate to="/login" />;
 };
 

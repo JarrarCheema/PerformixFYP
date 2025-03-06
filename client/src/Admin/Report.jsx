@@ -27,6 +27,7 @@ const Report = () => {
 
   // Fetch data from API
   useEffect(() => {
+
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -50,10 +51,10 @@ const Report = () => {
           }));
           setTd(formattedData);
           console.log("Formatted Data:", formattedData);
-          toast.success("Data fetched successfully!", {
-            position:'top-right',
-            autoClose:3000
-          })
+          // toast.success("Data fetched successfully!", {
+          //   position:'top-right',
+          //   autoClose:3000
+          // })
           
         }
       } catch (error) {
@@ -209,7 +210,7 @@ const Report = () => {
             }}
             td={filteredData
               .slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage)
-              .map((row) => ({
+              .map((row , index) => ({
                 ...row,
                 id: (
                   <div className="flex items-center">
@@ -218,7 +219,7 @@ const Report = () => {
                       checked={selectedRows.includes(row.id)}
                       onChange={() => handleSelectRow(row.id)}
                     />
-                    <span className="ml-2">{row.id}</span>
+                    <span className="ml-2">{index + 1}</span>
                   </div>
                 ),
                 action: (

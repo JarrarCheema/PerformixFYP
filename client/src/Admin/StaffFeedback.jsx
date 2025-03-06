@@ -55,8 +55,11 @@ function StaffFeedback() {
     updatedQuestions[qIndex].options[oIndex] = value;
     setSurvey({ ...survey, questions: updatedQuestions });
   };
+console.log('or');
 
   const createSurvey = async () => {
+    console.log(survey);
+    
     try {
       const response = await axios.post(
         `http://localhost:8080/survey/create-survey/${organization_id}`,
@@ -68,7 +71,7 @@ function StaffFeedback() {
           },
         }
       );
-      if (response.status === 200) {
+      if (response.status === 201) {
         toast.success("Survey Created Successfully!");
         setIsCreating(false);
         setSurvey({ title: "", description: "", questions: [] });
@@ -77,6 +80,7 @@ function StaffFeedback() {
         alert("Failed to create survey");
       }
     } catch (error) {
+
       console.error("Error creating survey:", error);
     }
   };

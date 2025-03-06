@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, TextInput, Label } from "flowbite-react";
 import axios from "axios"; // Import axios for making API requests
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const EditDepartmentModal = ({ isOpen, onClose, departmentData }) => {
   console.log("Data:", departmentData);
 
@@ -47,10 +48,14 @@ const EditDepartmentModal = ({ isOpen, onClose, departmentData }) => {
           },
         }
       );
-
+      
       if (response.data.success) {
         console.log("Department updated successfully:", response.data);
-        onClose(); // Close the modal after successful update
+        toast.success("Department updated successfully!", {
+          position: "top-right",
+          autoClose: 1500,
+        })
+        setTimeout(() => onClose(), 1500); // Close the modal after successful update
       } else {
         console.error("Failed to update department:", response.data.message);
       }

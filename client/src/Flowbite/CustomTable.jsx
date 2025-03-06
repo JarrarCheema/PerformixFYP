@@ -82,6 +82,8 @@ const CustomTable = ({ data, columns, currentPage, rowsPerPage, onEdit, onDelete
                           </MenuItem>
                         </Menu>
                       </>
+                    )  : col.key === "ids" ? (
+                      <span className="text-gray-800 font-semibold">{startIndex + rowIndex + 1}</span> 
                     ) : (
                       row[col.key]
                     )}

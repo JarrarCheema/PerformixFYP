@@ -1,78 +1,113 @@
-// src/components/Modal/ViewEvaluationModal.jsx
+// ViewEvaluationModal.jsx
 import React, { useState } from "react";
-import { Modal, Button } from "flowbite-react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  IconButton,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
 import { FaPlusCircle } from "react-icons/fa";
 import AddEvaluationModal from "./AddEvaluationModal";
 
 const ViewEvaluationModal = ({ isOpen, onClose, employeeData }) => {
+
   const [isEvaluationModalOpen, setEvaluationModalOpen] = useState(false);
   const [selectedParameter, setSelectedParameter] = useState(null);
+  const [emData , setEmData]= useState([]);
 
-  // Handle opening the AddEvaluationModal
   const handleAddEvaluation = (metric, param) => {
-    // Pass both metric_id and parameter details
-    setSelectedParameter({
+    const selectedParamData = {
       metric_id: metric.metric_id,
       parameter_id: param.parameter_id,
-      parameter_name: param.parameter_name
-    });
-    setEvaluationModalOpen(true);
+      parameter_name: param.parameter_name,
+
+    };
+    console.log('hey i am emplyee :' , employeeData);
+    
+  setEmData(employeeData); 
+    setSelectedParameter(selectedParamData);
+    setEvaluationModalOpen(true);  // Open AddEvaluationModal first
+    
+    setTimeout(() => {
+      onClose();  // Close ViewEvaluationModal AFTER setting the state
+    }, 200);  // Small delay ensures state updates correctly
   };
+  
 
   return (
     <>
-      <Modal show={isOpen} onClose={onClose}>
-        <Modal.Header>Employee Metrics</Modal.Header>
-        <Modal.Body>
-          <div className="space-y-4">
-            {employeeData && employeeData.metrics && employeeData.metrics.length > 0 ? (
-              employeeData.metrics.map((metric, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-gray-800">
-                    Metric: {metric.metric_name || "Unnamed Metric"}
-                  </h3>
-                  {metric.parameters && metric.parameters.length > 0 ? (
-                    <ul className="mt-2 space-y-2">
-                      {metric.parameters.map((param, idx) => (
-                        <li key={idx} className="flex justify-between items-center">
-                          <div>
-                            <span>{param.parameter_name || "Unnamed Parameter"}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span>{param.weightage || param.evaluation || 0}%</span>
-                            <FaPlusCircle
-                              className="text-blue-500 size-6 cursor-pointer"
+      <Dialog open={isOpen} onClose={onClose} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ fontWeight: "bold", backgroundColor: "#f5f5f5", borderBottom: "1px solid #ddd" }}>
+          Employee Metrics
+        </DialogTitle>
+        <DialogContent dividers sx={{ maxHeight: "500px", overflowY: "auto", p: 3 }}>
+          {employeeData?.metrics?.length > 0 ? (
+            employeeData.metrics.map((metric, index) => (
+              <Box key={index} sx={{ border: "1px solid #ccc", borderRadius: 1, p: 2, mb: 2, backgroundColor: "#fff" }}>
+                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                  Metric: {metric.metric_name || "Unnamed Metric"}
+                </Typography>
+                <List>
+                  {metric.parameters?.map((param, idx) => (
+                    <React.Fragment key={idx}>
+                      <ListItem
+                        secondaryAction={
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography variant="body2" sx={{ mr: 1 }}>
+                              {param.weightage || param.evaluation || 0}%
+                            </Typography>
+                            <IconButton
+                              color="primary"
                               onClick={() => handleAddEvaluation(metric, param)}
                               title="Add Evaluation"
-                            />
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-gray-500">No parameters available.</p>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">No metrics available.</p>
-            )}
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button color="gray" onClick={onClose}>
+                              sx={{ color: "#1976d2" }}
+                            >
+                              <FaPlusCircle />
+                            </IconButton>
+                          </Box>
+                        }
+                      >
+                        <ListItemText primary={param.parameter_name || "Unnamed Parameter"} primaryTypographyProps={{ fontWeight: "medium" }} />
+                      </ListItem>
+                      {idx < metric.parameters.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))}
+                </List>
+              </Box>
+            ))
+          ) : (
+            <Typography variant="body2" color="textSecondary">
+              No metrics available.
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ backgroundColor: "#f5f5f5", borderTop: "1px solid #ddd" }}>
+          <Button onClick={onClose} color="inherit" sx={{ textTransform: "none", fontWeight: "bold" }}>
             Close
           </Button>
-        </Modal.Footer>
-      </Modal>
+        </DialogActions>
+      </Dialog>
 
-      {/* Add Evaluation Modal */}
-      <AddEvaluationModal
-        isOpen={isEvaluationModalOpen}
-        onClose={() => setEvaluationModalOpen(false)}
-        employeeData={employeeData}
-        parameterData={selectedParameter}
-      />
+      {isEvaluationModalOpen && selectedParameter && (
+
+        <AddEvaluationModal
+          isOpen={isEvaluationModalOpen}
+          onClose={() => {
+            setEvaluationModalOpen(false)
+          
+          }}
+          employeeData={emData}
+          parameterData={selectedParameter}
+        />
+      )}
     </>
   );
 };

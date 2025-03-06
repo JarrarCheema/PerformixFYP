@@ -28,7 +28,7 @@ const drawerWidth = 250;
 
 const listItemData = [
   {
-    label: "Dashboards",
+    label: "Dashboard",
     link: "/admin/dashboard",
     icon: <img src={dicon} alt="Dashboard" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
@@ -43,7 +43,7 @@ const listItemData = [
     icon: <img src={deicon} alt="Departments" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
   {
-    label: "Employees",
+    label: "Line Managers",
     link: "/admin/employees",
     icon: <img src={eicon} alt="Employees" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
@@ -53,7 +53,7 @@ const listItemData = [
     icon: <img src={sicon} alt="Set Metrics" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
   {
-    label: "Servey",
+    label: "Survey",
     link: "/admin/stafffeedback",
     icon: <img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },

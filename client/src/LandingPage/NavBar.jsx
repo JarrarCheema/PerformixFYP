@@ -52,30 +52,21 @@ export default function NavBar() {
           >
             Log In
           </Button>
-          <Navbar.Toggle />
+         
         </div>
-        <Navbar.Collapse className="text-lg text-gray-600">
-          <Navbar.Link
-            href="#"
-            className="text-lg font-bold font-poppins text-shadow-md"
-          >
+        
+        <Navbar.Collapse className={`w-full flex flex-col md:flex-row items-center justify-center text-gray-600 ${open ? "block" : "hidden"} md:flex`}>
+          <Navbar.Link href="#" className="text-lg font-bold font-poppins text-shadow-md">
             Home
           </Navbar.Link>
-          <Navbar.Link
-            href="#"
-            className="text-lg font-bold font-poppins text-shadow-md"
-            onClick={handleAboutClick}
-          >
+          <Navbar.Link href="#" className="text-lg font-bold font-poppins text-shadow-md" onClick={handleAboutClick}>
             About
           </Navbar.Link>
-          <Navbar.Link
-            href="#"
-            className="text-lg text-custom-blue font-bold font-poppins text-shadow-md"
-            onClick={handleContactClick}
-          >
+          <Navbar.Link href="#" className="text-lg text-custom-blue font-bold font-poppins text-shadow-md" onClick={handleContactClick}>
             Contact
           </Navbar.Link>
         </Navbar.Collapse>
+
       </Navbar>
 
       {/* About Modal */}

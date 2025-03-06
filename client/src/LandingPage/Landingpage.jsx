@@ -8,7 +8,7 @@ export default function LandingPage() {
   const navigate = useNavigate(); // Initialize navigate function
 
   const handleGetStartedClick = () => {
-    navigate("/signup"); // Navigate to the signup page
+    navigate("/login"); // Navigate to the signup page
   };
 
   return (
@@ -30,7 +30,7 @@ export default function LandingPage() {
             <div className="flex justify-center md:justify-start">
               {/* "Get Started" button with navigation */}
               <button type="button" 
-              class="text-white bg-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+              class="text-white bg-gray-600 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={handleGetStartedClick}>
                 Get Started
                 </button>
             </div>

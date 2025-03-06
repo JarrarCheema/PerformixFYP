@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Doughnut, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -33,12 +34,36 @@ ChartJS.register(
 );
 
 const GraphReport = () => {
-  // Doughnut Chart Data
-  const chartData = {
-    labels: ["Productivity", "Quality of Work", "Team Work", "Time Management"],
+  const [evaluations, setEvaluations] = useState([]);
+
+  useEffect(() => {
+    const fetchEvaluations = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:8080/user/get-evaluations", {
+          headers: { Authorization: `${token}` },
+        });
+
+        if (response.data.success) {
+          setEvaluations(response.data.evaluations);
+        }
+      } catch (error) {
+        console.error("Error fetching evaluations:", error);
+      }
+    };
+
+    fetchEvaluations();
+  }, []);
+
+  const labels = evaluations.map((e) => e.metric_name);
+  const dataValues = evaluations.map((e) => e.marks_obtained);
+  const totalWeightages = evaluations.map((e) => e.total_weightage);
+
+  const doughnutData = {
+    labels,
     datasets: [
       {
-        data: [30, 77, 32, 67],
+        data: dataValues,
         backgroundColor: ["#A9D1FF", "#0057FF", "#C4DFF6", "#4A9EFF"],
         hoverBackgroundColor: ["#8ABAE3", "#0047D4", "#B0CCE8", "#3A8ADC"],
         borderWidth: 0,
@@ -46,32 +71,14 @@ const GraphReport = () => {
     ],
   };
 
-  // Doughnut Chart Options
-  const chartOptions = {
-    cutout: "70%",
-    plugins: {
-      legend: { display: false },
-    },
-  };
-
-  // Line Chart Data
   const lineChartData = {
-    labels: ["Productivity", "Quality of Work", "Team Work", "Time Management"],
+    labels,
     datasets: [
       {
-        label: "Team A",
-        data: [25, 90, 50, 80],
+        label: "Performance",
+        data: dataValues,
         borderColor: "#4A9EFF",
         backgroundColor: "rgba(74, 158, 255, 0.2)",
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-      },
-      {
-        label: "Team B",
-        data: [15, 60, 40, 70],
-        borderColor: "#0077B6",
-        backgroundColor: "rgba(0, 119, 182, 0.2)",
         borderWidth: 3,
         fill: true,
         tension: 0.4,
@@ -79,98 +86,62 @@ const GraphReport = () => {
     ],
   };
 
-  // Line Chart Options
-  const lineChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-    },
-    scales: {
-      x: {
-        grid: { display: false },
-      },
-      y: {
-        beginAtZero: true,
-        max: 100,
-        grid: { color: "rgba(0, 0, 0, 0.1)" },
-      },
-    },
-  };
-
-  // ✅ Define `filteredData` for Bar Chart
-  const filteredData = [
-    { name: "Productivity",  performanceB: 25 },
-    { name: "Quality of Work", performanceA: 77, },
-    { name: "Team Work",  performanceB: 50 },
-    { name: "Time Management", performanceA: 67 },
-  ];
+  const barChartData = evaluations.map((e) => ({
+    name: e.metric_name,
+    performance: e.marks_obtained,
+    total: e.total_weightage,
+  }));
 
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
-        {/* Doughnut Chart Card */}
         <div className="bg-white shadow-lg p-6 rounded-lg">
-          <h2 className="text-xl font-bold mb-4 text-[#484A54]">Department</h2>
-          <div className="flex flex-col lg:flex-row justify-between items-center mt-5">
-            <div className="mt-4">
-              <ul>
-                <li className="flex items-center mb-6">
-                  <span className="w-3 h-3 bg-[#A9D1FF] rounded-full inline-block mr-6"></span>
-                  Productivity <span className="ml-8"><strong>30%</strong></span>
-                </li>
-                <li className="flex items-center mb-6">
-                  <span className="w-3 h-3 bg-[#0057FF] rounded-full inline-block mr-6"></span>
-                  Quality of Work <span className="ml-8"><strong>77%</strong></span>
-                </li>
-                <li className="flex items-center mb-6">
-                  <span className="w-3 h-3 bg-[#C4DFF6] rounded-full inline-block mr-6"></span>
-                  Team Work <span className="ml-8"><strong>32%</strong></span>
-                </li>
-                <li className="flex items-center mb-6">
-                  <span className="w-3 h-3 bg-[#4A9EFF] rounded-full inline-block mr-6"></span>
-                  Time Management <span className="ml-8"><strong>67%</strong></span>
-                </li>
+          <h2 className="text-xl font-bold mb-4">Last Month Performance</h2>
+          <div className="flex items-center justify-center">
+            <div className="w-1/3">
+              <ul className="space-y-2">
+                {doughnutData.labels.map((label, index) => (
+                  <li key={index} className="text-gray-700 font-medium">
+                    <span
+                      className="inline-block w-3 h-3 mr-2 rounded-full"
+                      style={{ backgroundColor: doughnutData.datasets[0].backgroundColor[index] }}
+                    ></span>
+                    {label}
+                  </li>
+                ))}
               </ul>
             </div>
-            <div className="w-64 h-64">
-              <Doughnut data={chartData} options={chartOptions} />
+
+            {/* Doughnut Chart */}
+            <div className="w-2/3">
+              <Doughnut
+                data={doughnutData}
+                options={{
+                  cutout: "70%",
+                  plugins: { legend: { display: false } },
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Line Chart Section */}
-        <div className="bg-white shadow-lg p-6 rounded-lg overflow-x-auto ">
-          <h2 className="text-xl font-bold mb-4 text-[#484A54]">Department</h2>
+        <div className="bg-white shadow-lg p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-4 text-[#484A54]">Performance Trends</h2>
           <div className="min-w-[500px] h-[400px]">
-            <Line data={lineChartData} options={lineChartOptions} />
+            <Line data={lineChartData} />
           </div>
         </div>
       </div>
 
-      {/* Bar Chart Section */}
       <div className="overflow-x-auto mt-8 shadow-lg">
         <div className="min-w-[900px]">
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={filteredData} // ✅ No more undefined error!
-              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-            >
+            <BarChart data={barChartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
-              <Bar
-                dataKey="performanceA"
-                fill="#0160c9"
-                barSize={25}
-                radius={[5, 5, 0, 0]}
-              />
-              <Bar
-                dataKey="performanceB"
-                fill="#7ea8f8"
-                barSize={25}
-                radius={[5, 5, 0, 0]}
-              />
+              <Bar dataKey="performance" fill="#0160c9" barSize={25} radius={[5, 5, 0, 0]} />
+              <Bar dataKey="total" fill="#7ea8f8" barSize={25} radius={[5, 5, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

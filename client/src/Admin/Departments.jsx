@@ -33,7 +33,7 @@ const Departments = () => {
   ];
 
   // Fetch departments data using useCallback for memoization
-  const fetchDepartments = useCallback(async () => {
+  const fetchDepartments = async () => {
     setLoading(true);
     try {
       const response = await axios.get(
@@ -49,10 +49,10 @@ const Departments = () => {
         setDepartments(response.data.departments); // Set the fetched departments
 
         // Success toast for fetching data
-        toast.success("Departments fetched successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        // toast.success("Departments fetched successfully!", {
+        //   position: "top-right",
+        //   autoClose: 3000,
+        // });
       } else {
         console.error("Failed to fetch departments:", response.data.message);
       }
@@ -61,36 +61,35 @@ const Departments = () => {
     } finally {
       setLoading(false);
     }
-  }, [organizationId, token]);
+  };
 
   // Call fetchDepartments when token and organizationId are available
   useEffect(() => {
-    if (token && organizationId) {
-      fetchDepartments();
-    } else {
-      console.error("Token or Organization ID is missing.");
-    }
-  }, [token, organizationId]);
+   fetchDepartments();
+  }, []);
 
 
-  const handleEdit = useCallback((department) => {
+  const handleEdit = (department) => {
+    console.log("Edit department:", department);
+    
     setSelectedOrg(department);
     setEditModalOpen(true);
-  }, [fetchDepartments]);
+  };
 
-  const handleDelete = useCallback(
+  const handleDelete = 
     async (department) => {
       const confirmDelete = window.confirm(
         `Are you sure you want to delete the department "${department.department_name}"?`
       );
+console.log("Delete department:", department);
 
       if (confirmDelete) {
         try {
           // Send the department_id to the delete API
           const response = await axios.delete(
-            `http://localhost:8080/department/delete-department/${department.department_id}`,
+            `http://localhost:8080/department/delete-department/${department.dept_id}`,
             {
-              headers: {
+              headers: {  
                 Authorization: `${token}`,
               },
             }
@@ -118,9 +117,7 @@ const Departments = () => {
           });
         }
       }
-    },
-    [fetchDepartments, token]
-  );
+    };
 
   // Filtered data based on search input
   const filteredData = departments.filter((dept) =>
@@ -131,35 +128,36 @@ const Departments = () => {
     <div className="bg-white shadow rounded-lg p-6">
       
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-700">Department Management</h2>
 
         {/* Search & Add Department Button */}
-        <div className="flex items-center space-x-2">
-          <div className="relative w-72">
-            <HiSearch className="absolute left-3 top-3 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search department..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            {searchTerm && (
-              <HiX
-                className="absolute right-3 top-3 text-gray-500 cursor-pointer"
-                onClick={() => setSearchTerm("")}
-              />
-            )}
-          </div>
+        <div className="flex flex-col md:flex-row items-center md:space-x-2 space-y-2 md:space-y-0">
+  <div className="relative w-72">
+    <HiSearch className="absolute left-3 top-3 text-gray-500" />
+    <input
+      type="text"
+      placeholder="Search department..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+    />
+    {searchTerm && (
+      <HiX
+        className="absolute right-3 top-3 text-gray-500 cursor-pointer"
+        onClick={() => setSearchTerm("")}
+      />
+    )}
+  </div>
 
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-            onClick={() => setModalOpen(true)}
-          >
-            + Add Department
-          </button>
-        </div>
+  <button
+    className="bg-blue-500 text-white px-4 py-2 rounded-lg md:mt-0 mt-2"
+    onClick={() => setModalOpen(true)}
+  >
+    + Add Department
+  </button>
+</div>
+
       </div>
 
       {/* Paginated Table Component */}
@@ -177,16 +175,25 @@ const Departments = () => {
 
       {/* Modals */}
       <AddDepartmentModal
-        isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        refreshDepartments={fetchDepartments}
-      />
-      <EditDepartmentModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        departmentData={selectedOrg}
-        refreshDepartments={fetchDepartments}
-      />
+  isOpen={isModalOpen}
+  onClose={() => {
+    setModalOpen(false);
+    fetchDepartments(); // Refresh after closing Add modal
+  }}
+  refreshDepartments={fetchDepartments}
+/>
+
+<EditDepartmentModal
+  isOpen={editModalOpen}
+
+  onClose={() => {
+    setEditModalOpen(false);
+    fetchDepartments(); // Refresh after closing Edit modal
+  }}
+  departmentData={selectedOrg}
+ refreshDepartments={fetchDepartments}
+/>
+
     </div>
   );
 };

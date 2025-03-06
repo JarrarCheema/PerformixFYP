@@ -41,10 +41,10 @@ const OrgDetails = () => {
       setOrganizations(orgData);
 
       // Show success toast notification after fetching data
-      toast.success("Organizations fetched successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      // toast.success("Organizations fetched successfully!", {
+      //   position: "top-right",
+      //   autoClose: 3000,
+      // });
     } catch (error) {
       console.error("Error fetching organizations:", error);
       toast.error("Failed to fetch organizations. Please try again.", {
@@ -61,7 +61,7 @@ const OrgDetails = () => {
 
   // Column definitions with ID column added
   const columns = [
-    { header: "ID", accessor: "id", key: "id" },
+    { header: "ID", accessor: "id", key: "ids" },
     { header: "Organization Name", accessor: "name", key: "name" },
     { header: "Type of Industry", accessor: "industry", key: "industry" },
     { header: "Email Address", accessor: "email", key: "email" },

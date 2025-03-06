@@ -21,6 +21,7 @@ const Report = () => {
   const [td, setTd] = useState([]);
   const token = localStorage.getItem("token");
   const organizationId = localStorage.getItem("selectedOrganizationId");
+  const [graphData , setGraphData] = useState(null);
 
   // Ref to capture the table for PDF download
   const tableRef = useRef(null);
@@ -37,6 +38,8 @@ const Report = () => {
             },
           }
         );
+    setGraphData(response.data);
+    console.log('response of the api data ;' , response.data);
     
         if (response.data.success) {
           // Flatten the data to get users from all departments
@@ -258,7 +261,7 @@ const Report = () => {
           />
         </div>
       ) : (
-        <GraphReport startDate={startDate} endDate={endDate} />
+        <GraphReport data={graphData} />
       )}
     </div>
   );

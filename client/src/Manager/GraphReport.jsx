@@ -70,76 +70,67 @@ export default function GraphReport() {
         {/* Donut Chart */}
         <div className="bg-white rounded-2xl shadow p-6 overflow-x-auto">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Department</h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={donutData}
-                cx="50%"
-                cy="50%"
-                innerRadius={50}
-                outerRadius={80}
-                dataKey="value"
-                paddingAngle={5}
-              >
-                {donutData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<DonutTooltip />} />
-              <Legend
-                layout="vertical"
-                align="right"
-                verticalAlign="middle"
-                iconType="circle"
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="overflow-x-auto">
+            <div className="min-w-[500px]">
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={donutData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    dataKey="value"
+                    paddingAngle={5}
+                  >
+                    {donutData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<DonutTooltip />} />
+                  <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
         {/* Area Chart */}
         <div className="bg-white rounded-2xl shadow p-6 overflow-x-auto">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Department</h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={areaData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorValue1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#c3eef1" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#c3eef1" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorValue2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#86c5ed" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#86c5ed" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="date"
-                tick={{ fontSize: 12, fill: "#6B7280" }}
-                tickLine={false}
-                axisLine={{ stroke: "#E5E7EB" }}
-              />
-              <YAxis
-                tick={{ fontSize: 12, fill: "#6B7280" }}
-                tickLine={false}
-                axisLine={{ stroke: "#E5E7EB" }}
-              />
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-              <Tooltip content={<AreaTooltip />} />
-              <Area
-                type="monotone"
-                dataKey="value1"
-                stroke="#c3eef1"
-                fillOpacity={1}
-                fill="url(#colorValue1)"
-              />
-              <Area
-                type="monotone"
-                dataKey="value2"
-                stroke="#86c5ed"
-                fillOpacity={1}
-                fill="url(#colorValue2)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="overflow-x-auto">
+            <div className="min-w-[500px]">
+              <ResponsiveContainer width="100%" height={250}>
+                <AreaChart data={areaData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorValue1" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#c3eef1" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#c3eef1" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="colorValue2" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#86c5ed" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#86c5ed" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 12, fill: "#6B7280" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#E5E7EB" }}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: "#6B7280" }}
+                    tickLine={false}
+                    axisLine={{ stroke: "#E5E7EB" }}
+                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                  <Tooltip content={<AreaTooltip />} />
+                  <Area type="monotone" dataKey="value1" stroke="#c3eef1" fillOpacity={1} fill="url(#colorValue1)" />
+                  <Area type="monotone" dataKey="value2" stroke="#86c5ed" fillOpacity={1} fill="url(#colorValue2)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
       </div>
     </div>
