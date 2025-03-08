@@ -47,17 +47,17 @@ const Employees = () => {
         setEmployees(response.data.Line_Managers || []);
       } else {
         console.error("Failed to fetch employees:", response.data.message);
-        toast.error("Failed to fetch employees!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        // toast.error("Failed to fetch employees!", {
+        //   position: "top-right",
+        //   autoClose: 3000,
+        // });
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
-      toast.error("Error fetching employees!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      // toast.error("Error fetching employees!", {
+      //   position: "top-right",
+      //   autoClose: 3000,
+      // });
     }
   };
 

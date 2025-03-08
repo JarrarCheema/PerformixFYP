@@ -17,17 +17,18 @@ const DetailReport = () => {
         const response = await axios.get("http://localhost:8080/user/get-evaluations", {
           headers: { Authorization: `${token}` }, // Ensure correct token format
         });
+console.log( 'dta   ; ' , response.data);
 
-        if (response.data.success) {
+        if (response.data.total_evaluations >0) {
           setEvaluations(response.data.evaluations);
           setEmployeeData(response.data.evaluations[0]); // Assuming first record has employee details
           setFeedback(response.data.evaluations.map(e => e.feedback).filter(f => f)); // Store as an array
           toast.success("Evaluation data fetched successfully!");
         } else {
-          toast.warn("No evaluation data available.");
+          // toast.warn("No evaluation data available.");
         }
       } catch (error) {
-        toast.error("Error fetching evaluation data.");
+        // toast.error("Error fetching evaluation data.");
         console.error("Error fetching evaluation data:", error);
       }
     };
@@ -86,16 +87,22 @@ const DetailReport = () => {
         </div>
         <div className="mb-6 w-2/3">
           <div className="w-full bg-white p-6 rounded-lg shadow-lg grid grid-cols-1 gap-4 mt-4">
-            {evaluations.map((evalItem, index) => (
-              <div key={index} className="flex flex-col space-y-2">
-                <Label htmlFor={`metric-${index}`} value={evalItem.metric_name} />
-                <div className="flex space-x-4">
-                  <TextInput className="w-full" type="text" value={evalItem.marks_obtained} readOnly />
-                  <TextInput className="w-full" type="text" value={evalItem.total_weightage} readOnly />
-                </div>
-                <span className="text-xs text-gray-500">Weightage: {evalItem.total_weightage}%</span>
-              </div>
-            ))}
+          {evaluations.length > 0 ? (
+  evaluations.map((evalItem, index) => (
+    <div key={index} className="flex flex-col space-y-2">
+      <Label htmlFor={`metric-${index}`} value={evalItem.metric_name} />
+      <div className="flex space-x-4">
+        <TextInput className="w-full" type="text" value={evalItem.marks_obtained} readOnly />
+        <TextInput className="w-full" type="text" value={evalItem.total_weightage} readOnly />
+      </div>
+      <span className="text-xs text-gray-500">Weightage: {evalItem.total_weightage}%</span>
+    </div>
+  ))
+) : (
+  <p className="text-gray-500">No evaluations available.</p> // Show message when no data
+)}
+
+          
           </div>
         </div>
       </div>

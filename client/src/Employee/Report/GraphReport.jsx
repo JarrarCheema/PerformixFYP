@@ -55,11 +55,24 @@ const GraphReport = () => {
     fetchEvaluations();
   }, []);
 
-  const labels = evaluations.map((e) => e.metric_name);
-  const dataValues = evaluations.map((e) => e.marks_obtained);
-  const totalWeightages = evaluations.map((e) => e.total_weightage);
+  
+  let labels = [];
+let dataValues = [];
+let totalWeightages = [];
 
-  const doughnutData = {
+if (evaluations && Array.isArray(evaluations) && evaluations.length > 0) {
+  console.log("Evaluations found:", evaluations);
+  
+  labels = evaluations.map((e) => e.metric_name);
+  dataValues = evaluations.map((e) => e.marks_obtained);
+  totalWeightages = evaluations.map((e) => e.total_weightage);
+} else {
+  console.warn("No evaluations available. Your Line Manager has not evaluated you.");
+}
+
+  
+  
+   const doughnutData = {
     labels,
     datasets: [
       {
@@ -85,12 +98,16 @@ const GraphReport = () => {
       },
     ],
   };
+  let barChartData =[];
+  if(evaluations && Array.isArray(evaluations) && evaluations.length > 0){
+     barChartData = evaluations.map((e) => ({
+      name: e.metric_name,
+      performance: e.marks_obtained,
+      total: e.total_weightage,
+    }));
+  }
 
-  const barChartData = evaluations.map((e) => ({
-    name: e.metric_name,
-    performance: e.marks_obtained,
-    total: e.total_weightage,
-  }));
+  
 
   return (
     <div>

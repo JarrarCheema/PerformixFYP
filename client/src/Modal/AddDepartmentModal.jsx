@@ -27,7 +27,7 @@ const AddDepartmentModal = ({ isOpen, onClose }) => {
       .required("Department ID is required"),
 
     departmentCode: Yup.string()
-      .matches(/^[A-Z]{5}$/, "Department Code must be exactly 5 uppercase letters (e.g., 'FINHR')")
+    
       .required("Department Code is required"),
     
     description: Yup.string()

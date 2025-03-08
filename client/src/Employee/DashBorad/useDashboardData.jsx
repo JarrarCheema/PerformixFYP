@@ -21,7 +21,7 @@ const useDashboardData = () => {
 
         // toast.success("Dashboard data loaded successfully!");
       } catch (error) {
-        toast.error("Error fetching dashboard data.");
+        // toast.error("Error fetching dashboard data.");
         console.error("Error fetching dashboard data:", error);
       }
     };
@@ -34,7 +34,7 @@ const useDashboardData = () => {
       
           if (!response.data.evaluations || response.data.evaluations.length === 0) {
             console.warn("No evaluation data found.");
-            toast.warn("No evaluation data available.");
+            // toast.warn("No evaluation data available.");
             return;
           }
       
@@ -65,7 +65,7 @@ const useDashboardData = () => {
       
           // toast.success("Evaluation data fetched successfully!");
         } catch (error) {
-          toast.error("Error fetching evaluation data.");
+          // toast.error("Error fetching evaluation data.");
           console.error("Error fetching evaluation data:", error);
         }
       };
@@ -85,7 +85,7 @@ const useDashboardData = () => {
       setRecommendation("");
       toast.success("Recommendation submitted successfully!");
     } catch (error) {
-      toast.error("Error submitting recommendation.");
+      // toast.error("Error submitting recommendation.");
       console.error("Error submitting recommendation:", error);
     }
   };

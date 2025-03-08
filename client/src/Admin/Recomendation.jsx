@@ -27,7 +27,9 @@ function Recomendation() {
         }
       );
 
-      setRecommendations(response.data.recommendations);
+      const data = response.data.recommendations || []; // Ensure data is an array
+      setRecommendations(data);
+      console.log("Response:", data);
     } catch (error) {
       console.error("Error fetching recommendations:", error);
     }
@@ -43,40 +45,55 @@ function Recomendation() {
       <h2 className="text-2xl font-bold mb-4">Recommendations</h2>
 
       {currentItems.length > 0 ? (
+        
         currentItems.map((rec) => (
           <div key={rec.recommendation_id} className="border p-4 mb-4 rounded-lg shadow">
             <h3 className="text-lg font-semibold">{rec.recommendation_text}</h3>
-            <p className="text-gray-600">Employee: {rec.employee_name} ({rec.employee_email})</p>
-            <p className="text-gray-600">Admin: {rec.admin_name} ({rec.admin_email})</p>
-            <p className="text-sm text-gray-500">Created On: {new Date(rec.created_on).toLocaleString()}</p>
+            <p className="text-gray-600">
+              Employee: {rec.employee_name} ({rec.employee_email})
+            </p>
+            <p className="text-gray-600">
+              Admin: {rec.admin_name} ({rec.admin_email})
+            </p>
+            <p className="text-sm text-gray-500">
+              Created On: {new Date(rec.created_on).toLocaleString()}
+            </p>
           </div>
         ))
       ) : (
-        <p>No recommendations available.</p>
+        <div className="text-center mt-6">
+          <p className="text-lg text-gray-500">No recommendations available at the moment.</p>
+          <p className="text-gray-400">Check back later for updates.</p>
+        </div>
       )}
 
-      {/* Pagination Buttons */}
-      <div className="mt-4 flex justify-between">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
+      {/* Show Pagination Only If There Are Recommendations */}
+      {recommendations.length > itemsPerPage  && recommendations > 0 ?  (
+        <div className="mt-4 flex justify-between">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
 
-        <button
-          onClick={() =>
-            setCurrentPage((prev) =>
-              prev * itemsPerPage < recommendations.length ? prev + 1 : prev
-            )
-          }
-          disabled={currentPage * itemsPerPage >= recommendations.length}
-          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) =>
+                prev * itemsPerPage < recommendations.length ? prev + 1 : prev
+              )
+            }
+            disabled={currentPage * itemsPerPage >= recommendations.length}
+            className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      ) :''
+    
+    
+    }
     </div>
   );
 }

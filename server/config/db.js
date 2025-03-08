@@ -5,14 +5,12 @@ dotenv.config();
 
 const DB_HOST = process.env.DB_HOST;
 const DB_USER = process.env.DB_USER;
-const DB_PASS = process.env.DB_PASS;
 const DB_NAME = process.env.DB_NAME;
 
 // Initial connection without selecting database
 const initialConnection = mysql.createConnection({
     host: DB_HOST,
     user: DB_USER,
-    password: DB_PASS,
 });
 
 initialConnection.connect((err) => {
@@ -51,10 +49,8 @@ initialConnection.connect((err) => {
 const connection = mysql.createConnection({
     host: DB_HOST,
     user: DB_USER,
-    password: DB_PASS,
     database: DB_NAME,
 });
-
 // Function to create tables
 const createTables = () => {
     const queries = [
@@ -255,3 +251,9 @@ const createTables = () => {
 };
 
 export default connection;
+
+
+
+
+
+
