@@ -3,12 +3,12 @@ import { Navigate } from "react-router-dom";
 
 const isAdminAuthenticated = () => {
   const token = localStorage.getItem("token");
-  const isStaff = localStorage.getItem("Stafftoken");
-  const isManager = localStorage.getItem("Managertoken");
-  return token && !isStaff && !isManager;
+  
+  return token !== null;
 };
 
 const AdminPrivateRoute = ({ children }) => {
+  console.log("Admin Authenticated:", isAdminAuthenticated());
   
   
   return isAdminAuthenticated() ? children : <Navigate to="/login" />;

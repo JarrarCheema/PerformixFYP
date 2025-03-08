@@ -43,6 +43,7 @@ import EmployeePrivateRoute from './routes/EmployeePrivateRoute';
 import DetailsStaffFeedback from './Admin/DetailsStaffFeedback';
 import FillSurvey from './Employee/FillSurvey';
 import ManagerFillSurvey from './Manager/FillSurvey';
+import Recomendation from './Admin/Recomendation';
 function App() {
   return (
     <Router>
@@ -77,6 +78,7 @@ function App() {
           <Route path="/admin/leaderboard" element={<LeaderBoard />} />
           <Route path='/admin/report' element={<Report />} />
           <Route path="/admin/stafffeedback/:id" element={<DetailsStaffFeedback />} />
+          <Route path='/admin/recomendation' element={<Recomendation />} />
              </Route>
 
         {/* Manager Dashboard Routes */}

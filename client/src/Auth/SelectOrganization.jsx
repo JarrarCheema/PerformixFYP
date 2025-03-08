@@ -51,7 +51,7 @@ console.log('token ', token);
       alert("Please select an organization.");
       return;
     }
-  
+  localStorage.removeItem("selectedOrganizationId");
     // Get the organization object from the organizations array
     const selectedOrg = organizations.find(
       (org) => org.organization_name === selectedOrganization

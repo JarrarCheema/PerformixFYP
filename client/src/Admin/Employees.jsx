@@ -118,19 +118,26 @@ const Employees = () => {
   };
 
   // Handle Employee Deletion
-  const handleDeleteEmployee = async (employeeId) => {
+  const handleDeleteEmployee = async (emp) => {
+    const employee_id=emp.user_id;
+    console.log("Deleting employee with ID:", employee_id);
+    
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.delete(
-          `http://localhost:8080/user/delete/${employeeId}`,
+          `http://localhost:8080/user/delete-employee/${employee_id}`,
           {
             headers: { Authorization: `${token}` },
           }
         );
 
         if (response.data.success) {
-          setEmployees(employees.filter((emp) => emp.id !== employeeId));
+          setEmployees(employees.filter((emp) => emp.id !== employee_id));
+          toast.success("Employee deleted successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
         } else {
           toast.error("Failed to delete employee!", {
             position: "top-right",
@@ -190,7 +197,7 @@ const Employees = () => {
       <div className="flex space-x-2">
         <HiTrash
           className="text-red-500 size-6 cursor-pointer"
-          onClick={() => handleDeleteEmployee(emp.id)}
+          onClick={() => handleDeleteEmployee(emp)}
         />
       </div>
     ),

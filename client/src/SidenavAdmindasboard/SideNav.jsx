@@ -21,6 +21,7 @@ import sicon from '../assets/Icon (1).png'
 import sticon from '../assets/Icon (2).png' 
 import licon from '../assets/Icon (3).png'
 import ricon from '../assets/clipboard-attachment.png'
+import { BiFoodMenu } from "react-icons/bi";
 const drawerWidth = 250;
 
 const listItemData = [
@@ -53,6 +54,11 @@ const listItemData = [
     label: "Survey",
     link: "/admin/stafffeedback",
     icon: <img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,  // Use image icon
+  },
+  {
+    label:"Recomendation",
+    link:"/admin/recomendation",
+    icon:<img src={sticon} alt="Staff Feedback" style={{ width: "18px", height: "18px" }} />,
   },
   {
     label: "Leader Borad",
