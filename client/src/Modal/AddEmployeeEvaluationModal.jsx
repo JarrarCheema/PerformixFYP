@@ -57,7 +57,7 @@ const AddEmployeeEvaluationModal = ({ isOpen, onClose, employeeId, metricId, par
 
   return (
     <>
-      <Modal show={isOpen} onClose={onClose} size="md" className="z-[9999]">
+      <Modal show={isOpen} onClose={onClose} size="md" className="bg-gray-100">
         <Modal.Header>Add Evaluation</Modal.Header>
         <Modal.Body>
           <Formik

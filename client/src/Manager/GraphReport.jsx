@@ -1,138 +1,153 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Doughnut, Line } from "react-chartjs-2";
 import {
-  PieChart,
-  Pie,
-  Cell,
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
   Legend,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+} from "chart.js";
+import {
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
-const donutData = [
-  { name: "Productivity", value: 30 },
-  { name: "Quality of Work", value: 77 },
-  { name: "Team Work", value: 32 },
-  { name: "Time Management", value: 67 },
-];
+// Register Chart.js components
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler
+);
 
-const areaData = [
-  { date: "Jan 21", value1: 5000, value2: 2000 },
-  { date: "Jan 22", value1: 7000, value2: 4000 },
-  { date: "Jan 23", value1: 15000, value2: 8000 },
-  { date: "Jan 24", value1: 11000, value2: 6000 },
-  { date: "Jan 25", value1: 12000, value2: 9000 },
-  { date: "Jan 26", value1: 15000, value2: 14000 },
-  { date: "Jan 27", value1: 20000, value2: 16000 },
-];
+const GraphReport = () => {
+  const [evaluations, setEvaluations] = useState([]);
 
-const DONUT_COLORS = ["#006de4", "#3393fc", "#b0d5fe"];
+  useEffect(() => {
+    const fetchEvaluations = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:8080/user/get-evaluations", {
+          headers: { Authorization: `${token}` },
+        });
 
-// Custom Tooltip for Pie Chart
-const DonutTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const total = donutData.reduce((acc, item) => acc + item.value, 0);
-    const percentage = ((payload[0].value / total) * 100).toFixed(2);
+        if (response.data.success) {
+          setEvaluations(response.data.evaluations);
+        }
+      } catch (error) {
+        console.error("Error fetching evaluations:", error);
+      }
+    };
 
-    return (
-      <div className="bg-white shadow rounded p-2 text-sm">
-        <p>{`${payload[0].name}: ${percentage}%`}</p>
-      </div>
-    );
-  }
-  return null;
-};
+    fetchEvaluations();
+  }, []);
 
-// Custom Tooltip for Area Chart
-const AreaTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white shadow rounded p-2 text-sm">
-        {payload.map((data, index) => (
-          <p key={index} style={{ color: data.color }}>
-            {`${data.name}: ${data.value.toLocaleString()}`}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
+  const labels = evaluations.map((e) => e.metric_name);
+  const dataValues = evaluations.map((e) => e.marks_obtained);
+  const totalWeightages = evaluations.map((e) => e.total_weightage);
 
-export default function GraphReport() {
+  const doughnutData = {
+    labels,
+    datasets: [
+      {
+        data: dataValues,
+        backgroundColor: ["#A9D1FF", "#0057FF", "#C4DFF6", "#4A9EFF"],
+        hoverBackgroundColor: ["#8ABAE3", "#0047D4", "#B0CCE8", "#3A8ADC"],
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  const lineChartData = {
+    labels,
+    datasets: [
+      {
+        label: "Performance",
+        data: dataValues,
+        borderColor: "#4A9EFF",
+        backgroundColor: "rgba(74, 158, 255, 0.2)",
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const barChartData = evaluations.map((e) => ({
+    name: e.metric_name,
+    performance: e.marks_obtained,
+    total: e.total_weightage,
+  }));
+
   return (
-    <div className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Donut Chart */}
-        <div className="bg-white rounded-2xl shadow p-6 overflow-x-auto">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Department</h2>
-          <div className="overflow-x-auto">
-            <div className="min-w-[500px]">
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={donutData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    dataKey="value"
-                    paddingAngle={5}
-                  >
-                    {donutData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={DONUT_COLORS[index % DONUT_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<DonutTooltip />} />
-                  <Legend layout="vertical" align="right" verticalAlign="middle" iconType="circle" />
-                </PieChart>
-              </ResponsiveContainer>
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
+        <div className="bg-white shadow-lg p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">Last Month Performance</h2>
+          <div className="flex items-center justify-center">
+            <div className="w-1/3">
+              <ul className="space-y-2">
+                {doughnutData.labels.map((label, index) => (
+                  <li key={index} className="text-gray-700 font-medium">
+                    <span
+                      className="inline-block w-3 h-3 mr-2 rounded-full"
+                      style={{ backgroundColor: doughnutData.datasets[0].backgroundColor[index] }}
+                    ></span>
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Doughnut Chart */}
+            <div className="w-2/3">
+              <Doughnut
+                data={doughnutData}
+                options={{
+                  cutout: "70%",
+                  plugins: { legend: { display: false } },
+                }}
+              />
             </div>
           </div>
         </div>
 
-        {/* Area Chart */}
-        <div className="bg-white rounded-2xl shadow p-6 overflow-x-auto">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Department</h2>
-          <div className="overflow-x-auto">
-            <div className="min-w-[500px]">
-              <ResponsiveContainer width="100%" height={250}>
-                <AreaChart data={areaData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorValue1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#c3eef1" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#c3eef1" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorValue2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#86c5ed" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#86c5ed" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 12, fill: "#6B7280" }}
-                    tickLine={false}
-                    axisLine={{ stroke: "#E5E7EB" }}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12, fill: "#6B7280" }}
-                    tickLine={false}
-                    axisLine={{ stroke: "#E5E7EB" }}
-                  />
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                  <Tooltip content={<AreaTooltip />} />
-                  <Area type="monotone" dataKey="value1" stroke="#c3eef1" fillOpacity={1} fill="url(#colorValue1)" />
-                  <Area type="monotone" dataKey="value2" stroke="#86c5ed" fillOpacity={1} fill="url(#colorValue2)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+        <div className="bg-white shadow-lg p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-4 text-[#484A54]">Performance Trends</h2>
+          <div className="min-w-[500px] h-[400px]">
+            <Line data={lineChartData} />
           </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto mt-8 shadow-lg">
+        <div className="min-w-[900px]">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={barChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Bar dataKey="performance" fill="#0160c9" barSize={25} radius={[5, 5, 0, 0]} />
+              <Bar dataKey="total" fill="#7ea8f8" barSize={25} radius={[5, 5, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default GraphReport;

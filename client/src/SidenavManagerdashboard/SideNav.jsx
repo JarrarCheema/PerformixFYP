@@ -43,7 +43,7 @@ const listItemData = [
     icon: <img src={deicon} alt="Departments" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
   {
-    label: "Evaluation",
+    label: "My Evaluation",
     link: "/manger/evaluation",
     icon: <img src={oicon} alt="Employees" style={{ width: "18px", height: "18px" }} />,  // Use image icon
   },
