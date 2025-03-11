@@ -106,12 +106,12 @@ const ViewParameter = ({ isOpen, onClose, parameterData }) => {
   return (
     <>
       <ToastContainer />
-      <Modal
+      <Modal 
         show={isOpen}
         size="lg"
         onClose={onClose}
         popup
-        className="backdrop:bg-black/50"
+        className="bg-gray-100"
       >
         <Modal.Header />
         <Modal.Body>
