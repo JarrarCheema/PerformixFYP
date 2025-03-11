@@ -15,8 +15,6 @@ const Report = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [td, setTd] = useState([]);
-  const [showConfirmModal, setShowConfirmModal] = useState(false); // To handle modal visibility
-  const [rowToDelete, setRowToDelete] = useState(null); // Store row ID for delete confirmation
   const token = localStorage.getItem("token");
   const organizationId = localStorage.getItem("selectedOrganizationId");
 
@@ -78,18 +76,8 @@ const Report = () => {
     );
   };
 
-  const handleDeleteConfirmation = (rowId) => {
-    setRowToDelete(rowId);
-    setShowConfirmModal(true); // Show the confirmation modal
-  };
-
-  const confirmDelete = () => {
-    alert(`Delete row with ID ${rowToDelete}`);
-    setShowConfirmModal(false); // Close the confirmation modal after confirming
-  };
-
-  const cancelDelete = () => {
-    setShowConfirmModal(false); // Close the modal when the cancel button is clicked
+  const handleDelete = (rowId) => {
+    alert(`Delete row with ID ${rowId}`);
   };
 
   const handleStartDateChange = (value) => {
@@ -186,12 +174,11 @@ const Report = () => {
                   <div className="flex justify-center">
                     <FiTrash
                       className="cursor-pointer text-xl text-red-600"
-                      onClick={() => handleDeleteConfirmation(row.id)}
+                      onClick={() => handleDelete(row.id)}
                     />
                   </div>
                 ),
-              }))
-            }
+              }))}
             styleTableContainer={{ boxShadow: "none", borderRadius: "10px" }}
             styleTableThead={{ backgroundColor: "#F8F9FA" }}
             styleTableTh={{ fontWeight: "bold", color: "#333", fontSize: "16px" }}
@@ -210,35 +197,6 @@ const Report = () => {
         </div>
       ) : (
         <GraphReport startDate={startDate} endDate={endDate} />
-      )}
-
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div
-          className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center"
-          onClick={cancelDelete}
-        >
-          <div
-            className="bg-white p-6 rounded-lg shadow-lg w-1/3"
-            onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking inside
-          >
-            <h3 className="text-lg font-semibold">Are you sure you want to delete this person?</h3>
-            <div className="flex justify-end gap-4 mt-4">
-              <button
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg"
-                onClick={cancelDelete}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded-lg"
-                onClick={confirmDelete}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
