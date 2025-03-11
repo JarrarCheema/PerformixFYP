@@ -25,7 +25,7 @@ const token = localStorage.getItem("token");
 
       if (response.data.success) {
         setSurvey(response.data.survey);
-        toast.success("Survey details loaded successfully!");
+        // toast.success("Survey details loaded successfully!");
         console.log("Survey details:", response.data.survey.survey_id);
         setSurvey_id(response.data.survey.survey_id);
         
