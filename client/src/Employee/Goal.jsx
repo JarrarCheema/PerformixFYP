@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { HiSearch, HiX } from "react-icons/hi";
 import { FaPlus } from "react-icons/fa6";
-import { MdFilterList } from "react-icons/md";
 import GoalModal from "../Modal/AddGoal";
 
 export default function Goal() {
@@ -90,23 +88,13 @@ export default function Goal() {
         <h2 className="hidden md:block text-lg font-semibold text-gray-700">Goals</h2>
         <div className="flex flex-col sm:flex-row items-center space-x-2 sm:space-x-2 mt-4 sm:mt-0">
           <div className="relative w-full sm:w-90 mb-2 sm:mb-0">
-            <HiSearch className="absolute left-3 top-3 text-gray-500" />
-            <input
+            {/* <input
               type="text"
               placeholder="Search employee..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            {searchTerm && (
-              <HiX
-                className="absolute right-3 top-3 text-gray-500 cursor-pointer"
-                onClick={() => setSearchTerm("")}
-              />
-            )}
-          </div>
-          <div className="p-1 border border-gray-300 rounded-lg m-1">
-            <MdFilterList size={28} color="#777b8b" />
+              className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            /> */}
           </div>
           <button
             className="bg-blue-500 w-2/3 text-white px-4 py-2 rounded-lg flex items-center space-x-1"
@@ -137,7 +125,6 @@ export default function Goal() {
                     <span className="text-gray-500 text-sm">{task.date}</span>
                   </div>
                   <ul className="mt-2 text-gray-700 text-sm">
-                
                     {task.subtasks.map((subtask, index) => (
                       <li key={index} className="list-disc ml-5">{subtask}</li>
                     ))}

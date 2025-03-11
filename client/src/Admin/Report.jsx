@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Checkbox, Dropdown } from "flowbite-react";
+import { Checkbox } from "flowbite-react";
 import { FaDownload } from "react-icons/fa";
-import { FiMoreVertical } from "react-icons/fi";
+import { FiTrash } from "react-icons/fi"; // Importing delete icon
 import MuiTable from "../mui/TableMuiCustom";
-import { Datepicker } from "flowbite-react";
-import GraphReport from "./GraphReport";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -19,6 +15,8 @@ const Report = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [td, setTd] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // To handle modal visibility
+  const [rowToDelete, setRowToDelete] = useState(null); // Store row ID for delete confirmation
   const token = localStorage.getItem("token");
   const organizationId = localStorage.getItem("selectedOrganizationId");
 
@@ -27,7 +25,6 @@ const Report = () => {
 
   // Fetch data from API
   useEffect(() => {
-
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -46,23 +43,18 @@ const Report = () => {
             designation: item.designation,
             email: item.email,
             phone: item.phone,
-            performance: `${item.performance_score}%`,
+            performance: `${item.performance_score}`,
             date: item.created_on.split("T")[0],
           }));
           setTd(formattedData);
           console.log("Formatted Data:", formattedData);
-          // toast.success("Data fetched successfully!", {
-          //   position:'top-right',
-          //   autoClose:3000
-          // })
-          
         }
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Error fetching data!", {
-          position:'top-right',
-          autoClose:3000
-        })
+          position: 'top-right',
+          autoClose: 3000
+        });
       }
     };
     fetchData();
@@ -86,17 +78,24 @@ const Report = () => {
     );
   };
 
-  const handleMenuAction = (action, rowId) => {
-    if (action === "detail") {
-      alert(`View details of ${rowId}`);
-    } else if (action === "delete") {
-      alert(`Delete row with ID ${rowId}`);
-    }
+  const handleDeleteConfirmation = (rowId) => {
+    setRowToDelete(rowId);
+    setShowConfirmModal(true); // Show the confirmation modal
   };
+
+  const confirmDelete = () => {
+    alert(`Delete row with ID ${rowToDelete}`);
+    setShowConfirmModal(false); // Close the confirmation modal after confirming
+  };
+
+  const cancelDelete = () => {
+    setShowConfirmModal(false); // Close the modal when the cancel button is clicked
+  };
+
   const handleStartDateChange = (value) => {
     setStartDate(value ? new Date(value) : null);
   };
-  
+
   const handleEndDateChange = (value) => {
     setEndDate(value ? new Date(value) : null);
   };
@@ -107,22 +106,16 @@ const Report = () => {
     const rowDate = row.date;
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
-  
+
     // Set time to 0:00:00 to compare only dates
     if (start) start.setHours(0, 0, 0, 0);
     if (end) end.setHours(23, 59, 59, 999);
-  console.log("Row Date:", rowDate);
-  console.log("Start Date:", start);
-  console.log("End Date:", end);
-  console.log(  (!start || rowDate <= start) && 
-  (!end || rowDate >= end));
-  
+    
     return (
       (!start || rowDate >= start) && 
       (!end || rowDate <= end)
     );
   });
-  
 
   // Download the table as a PDF
   const handleDownloadPDF = () => {
@@ -139,28 +132,9 @@ const Report = () => {
 
   return (
     <div>
-      <ToastContainer/>
+      <ToastContainer />
       <div className="flex flex-col lg:flex-row justify-between items-center m-6 gap-4">
-        {/* <div className="flex flex-col md:flex-row gap-4">
-        <p className="text-gray-900 font-semibold flex items-center">
-  Start Date:
-  <Datepicker
-    value={startDate}
-    onChange={(date) => handleStartDateChange(date)}
-  />
-</p>
-
-<p className="text-gray-900 font-semibold flex items-center">
-  End Date:
-  <Datepicker
-    value={endDate}
-    onChange={(date) => handleEndDateChange(date)}
-  />
-</p>
-
-
-        </div> */}
-<div></div>
+        <div></div>
         <div className="flex flex-col md:flex-row items-center gap-4">
           <button
             className="flex items-center px-4 py-2 bg-gray-100 text-black rounded-lg shadow-lg border border-gray-200 hover:bg-gray-100"
@@ -169,20 +143,6 @@ const Report = () => {
             <FaDownload className="mr-2" />
             Download
           </button>
-          {/* <div className="p-2 bg-gray-200 rounded-lg flex gap-2">
-            <button
-              className={`px-4 py-2 ${activeTab === "graph" ? "bg-gray-300" : "bg-gray-200"} text-gray-700 rounded-lg shadow hover:bg-gray-300`}
-              onClick={() => setActiveTab("graph")}
-            >
-              Graph Report
-            </button>
-            <button
-              className={`px-4 py-2 ${activeTab === "detail" ? "bg-gray-300" : "bg-gray-200"} text-gray-700 rounded-lg shadow hover:bg-gray-300`}
-              onClick={() => setActiveTab("detail")}
-            >
-              Detail Report
-            </button>
-          </div> */}
         </div>
       </div>
 
@@ -205,7 +165,7 @@ const Report = () => {
               email: "Email",
               phone: "Phone",
               designation: "Designation",
-              performance: "Performance Matrix",
+              performance: "Performance Score",
               action: "Action",
             }}
             td={filteredData
@@ -223,40 +183,62 @@ const Report = () => {
                   </div>
                 ),
                 action: (
-                  <Dropdown
-                    arrowIcon={false}
-                    inline={true}
-                    label={<FiMoreVertical className="cursor-pointer text-xl" />}
-                  >
-                    <Dropdown.Item onClick={() => handleMenuAction("detail", row.id)}>
-                      Detail
-                    </Dropdown.Item>
-                    <Dropdown.Item onClick={() => handleMenuAction("delete", row.id)}>
-                      Delete
-                    </Dropdown.Item>
-                  </Dropdown>
+                  <div className="flex justify-center">
+                    <FiTrash
+                      className="cursor-pointer text-xl text-red-600"
+                      onClick={() => handleDeleteConfirmation(row.id)}
+                    />
+                  </div>
                 ),
-              }))}
-              styleTableContainer={{ boxShadow: "none", borderRadius: "10px" }}
-              styleTableThead={{ backgroundColor: "#F8F9FA" }}
-              styleTableTh={{ fontWeight: "bold", color: "#333", fontSize: "16px" }}
-              styleTableTbody={{ backgroundColor: "#FFFFFF" }}
-              cellStyles={{
-                department: { fontWeight: "500", color: "#555", fontSize: "15px", fontFamily: "Poppins, sans-serif" },
-                name: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
-                email: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
-                phone: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
-                designation: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
-                performance: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
-                action: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
-              }}
-              
-              rowStyles={{ backgroundColor: "#Ffffff", fontSize: "24px", color: "#333" }}
-       
+              }))
+            }
+            styleTableContainer={{ boxShadow: "none", borderRadius: "10px" }}
+            styleTableThead={{ backgroundColor: "#F8F9FA" }}
+            styleTableTh={{ fontWeight: "bold", color: "#333", fontSize: "16px" }}
+            styleTableTbody={{ backgroundColor: "#FFFFFF" }}
+            cellStyles={{
+              department: { fontWeight: "500", color: "#555", fontSize: "15px", fontFamily: "Poppins, sans-serif" },
+              name: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+              email: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+              phone: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+              designation: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+              performance: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+              action: { fontSize: "15px", color: "#444", fontFamily: "Poppins, sans-serif" },
+            }}
+            rowStyles={{ backgroundColor: "#Ffffff", fontSize: "24px", color: "#333" }}
           />
         </div>
       ) : (
         <GraphReport startDate={startDate} endDate={endDate} />
+      )}
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div
+          className="fixed inset-0 bg-gray-100 bg-opacity-50 flex justify-center items-center"
+          onClick={cancelDelete}
+        >
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg w-1/3"
+            onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking inside
+          >
+            <h3 className="text-lg font-semibold">Are you sure you want to delete this person?</h3>
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                onClick={confirmDelete}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
