@@ -78,6 +78,7 @@ const Report = () => {
 
   const handleDelete = (rowId) => {
     alert(`Delete row with ID ${rowId}`);
+    
   };
 
   const handleStartDateChange = (value) => {
